@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroImage = document.getElementById('hero-image');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-
+    const header = document.querySelector('header');
 
     // Modal elements
     const modal = document.getElementById('product-modal');
@@ -28,15 +28,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalDesc = document.getElementById('modal-desc');
     const modalPrice = document.getElementById('modal-price');
     const modalAddBtn = document.getElementById('modal-add-btn');
+    const expandImgBtn = document.getElementById('expand-img-btn');
+
+    // Lightbox elements
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCloseBtn = document.getElementById('lightbox-close-btn');
 
     // --- State ---
     let allProducts = [];
+    let allAvailableImages = []; // Kho chứa tất cả ảnh hợp lệ để làm ảnh dự phòng
     let selectedProducts = {}; 
     let heroSlideshowInterval = null;
     let productsPerCategory = {};
     let currentCategory = '';
     let currentIndex = 0;
     let itemsPerPage = 4;
+
+    // --- Function to dynamically set header height for scroll padding ---
+    function updateHeaderHeight() {
+        if (header) {
+            const headerHeight = header.offsetHeight;
+            document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+        }
+    }
 
     // --- Hero Slideshow Function ---
     function startHeroSlideshow(imageUrls) {
@@ -104,6 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             allProducts = data;
 
+            // --- START: Tạo một kho ảnh dự phòng từ tất cả sản phẩm ---
+            allAvailableImages = allProducts
+                .flatMap(p => [p.image_url, ...(p.gallery || [])]) // Lấy tất cả link ảnh
+                .filter(Boolean); // Lọc bỏ các link rỗng hoặc null
+            allAvailableImages = [...new Set(allAvailableImages)]; // Xóa các link trùng lặp
+            // --- END: Tạo kho ảnh dự phòng ---
+
             const slideshowImages = allProducts.flatMap(p => p.gallery || []).filter(Boolean);
             if (slideshowImages.length > 0) {
                 startHeroSlideshow([...new Set(slideshowImages)]);
@@ -143,6 +165,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- START: CẬP NHẬT LOGIC XỬ LÝ ẢNH LỖI ---
+    // Hàm này tạo ra một trình xử lý lỗi riêng cho mỗi ảnh sản phẩm
+    function createImageErrorHandler(product) {
+        let attempts = 0;
+        
+        // Xây dựng một danh sách các lựa chọn thay thế
+        const fallbacks = [
+            // 1. Ảnh đầu tiên trong gallery của chính sản phẩm đó
+            product.gallery && product.gallery[0],
+            // 2. Một ảnh ngẫu nhiên từ kho ảnh dự phòng
+            () => (allAvailableImages.length > 0 
+                ? allAvailableImages[Math.floor(Math.random() * allAvailableImages.length)] 
+                : null),
+            // 3. Logo của trang web làm giải pháp cuối cùng
+            'logo.png'
+        ].filter(Boolean); // Lọc bỏ các giá trị rỗng
+
+        // Trả về một hàm để gán cho sự kiện 'error'
+        return function handleError(event) {
+            const imgElement = event.target;
+            // Nếu vẫn còn lựa chọn thay thế
+            if (attempts < fallbacks.length) {
+                let nextSrc = fallbacks[attempts];
+                // Nếu lựa chọn là một hàm (trường hợp ảnh ngẫu nhiên), hãy gọi nó
+                if (typeof nextSrc === 'function') {
+                    nextSrc = nextSrc();
+                }
+                // Nếu có link ảnh, gán nó vào src
+                if(nextSrc) {
+                    imgElement.src = nextSrc;
+                }
+                attempts++;
+            } else {
+                // Nếu đã thử hết mà vẫn lỗi, xóa sự kiện để tránh lặp vô tận
+                imgElement.removeEventListener('error', handleError);
+            }
+        };
+    }
+
     function renderProducts(category) {
         if (!productGrid) return;
         const filteredProducts = allProducts.filter(p => p.category === category);
@@ -157,9 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        productGrid.innerHTML = filteredProducts.map(product => `
+        // Tạo HTML cho các thẻ sản phẩm
+        productGrid.innerHTML = filteredProducts.map((product, index) => {
+            const imageId = `product-image-${category.replace(/\s/g, '-')}-${index}`;
+            return `
             <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
-                <img src="${product.image_url}" alt="${product.name}" class="w-full h-48 object-cover cursor-pointer product-image" data-id="${product.id}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi';">
+                <div class="product-image-container h-48 overflow-hidden">
+                    <img id="${imageId}" src="${product.image_url || ''}" alt="${product.name}" class="product-image w-full h-full object-cover cursor-pointer" data-id="${product.id}">
+                </div>
                 <div class="p-4 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold text-gray-800">${product.name}</h3>
                     <p class="text-gray-600 mt-2 flex-grow">${product.description}</p>
@@ -171,7 +237,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
+        
+        // Sau khi HTML được chèn vào trang, gán sự kiện lỗi cho từng ảnh
+        filteredProducts.forEach((product, index) => {
+            const imageId = `product-image-${category.replace(/\s/g, '-')}-${index}`;
+            const imgElement = document.getElementById(imageId);
+            if (imgElement) {
+                imgElement.addEventListener('error', createImageErrorHandler(product));
+                // Nếu thẻ img không có src ban đầu, kích hoạt sự kiện lỗi để bắt đầu chuỗi thay thế
+                if (!imgElement.getAttribute('src')) {
+                    imgElement.dispatchEvent(new Event('error'));
+                }
+            }
+        });
+        // --- END: CẬP NHẬT LOGIC XỬ LÝ ẢNH LỖI ---
         
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -233,13 +313,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Modal Functions ---
     function openModal(product) {
-        if (!modal || !modalContent || !product.gallery || product.gallery.length === 0) return;
+        if (!modal || !modalContent) return;
     
+        const galleryImages = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image_url];
         modalThumbnailGallery.innerHTML = '';
-        modalMainImg.src = product.gallery[0];
+        modalMainImg.src = galleryImages[0];
         modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
     
-        product.gallery.forEach((imageUrl, index) => {
+        galleryImages.forEach((imageUrl, index) => {
             const thumb = document.createElement('img');
             thumb.src = imageUrl;
             thumb.alt = `${product.name} thumbnail ${index + 1}`;
@@ -272,6 +353,20 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }, 300);
+    }
+
+    // --- Lightbox Functions ---
+    function openLightbox(imageUrl) {
+        if (!lightbox || !lightboxImg) return;
+        lightboxImg.src = imageUrl;
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+    }
+
+    function closeLightbox() {
+        if (!lightbox) return;
+        lightbox.classList.add('hidden');
+        lightbox.classList.remove('flex');
     }
 
     // --- Event Handlers ---
@@ -356,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- Initializations & Event Listeners ---
+    updateHeaderHeight();
     fetchProducts();
 
     if (bookingForm) {
@@ -363,17 +459,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (productGrid) {
-        productGrid.addEventListener('click', (e) => {
+        // --- START: Cập nhật logic click để tương thích với kéo thả ---
+        const handleProductClick = (e) => {
+            // Chỉ mở modal nếu sự kiện không phải từ nút "Chọn"
+            if (e.target.closest('.add-to-cart-btn')) {
+                return;
+            }
+
             const card = e.target.closest('.product-card');
             if (card) {
                 const image = card.querySelector('.product-image');
-                if (image && e.target.tagName.toLowerCase() !== 'button') {
+                if (image) {
                      const productId = image.dataset.id;
                      const product = allProducts.find(p => p.id == productId);
                      if (product) openModal(product);
                 }
             }
+        };
+
+        // Sử dụng 'mouseup' thay vì 'click' để tránh xung đột với kéo-thả
+        productGrid.addEventListener('mouseup', (e) => {
+            // Biến `hasDragged` được định nghĩa trong logic kéo-thả
+            // Nếu không có hành động kéo, thì thực hiện click
+            if (!productGrid.hasDragged) {
+                handleProductClick(e);
+            }
         });
+         // --- END: Cập nhật logic click ---
     }
 
     if (modal && modalCloseBtn && modalAddBtn) {
@@ -384,6 +496,19 @@ document.addEventListener('DOMContentLoaded', () => {
         modalAddBtn.addEventListener('click', () => {
             handleAddToCart(modalAddBtn.dataset.id);
             closeModal();
+        });
+    }
+
+    if (expandImgBtn) {
+        expandImgBtn.addEventListener('click', () => {
+            if (modalMainImg) openLightbox(modalMainImg.src);
+        });
+    }
+    
+    if (lightbox && lightboxCloseBtn) {
+        lightboxCloseBtn.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
         });
     }
     
@@ -404,9 +529,113 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- START: LOGIC CUỘN NGANG BẰNG CHUỘT (WHEEL SCROLL) ---
+    if (sliderContainer) {
+        sliderContainer.addEventListener('wheel', (e) => {
+            if (e.deltaY === 0) return;
+            e.preventDefault();
+
+            const currentProducts = productsPerCategory[currentCategory] || [];
+            const maxIndex = Math.max(0, currentProducts.length - itemsPerPage);
+
+            if (e.deltaY > 0) {
+                if (currentIndex < maxIndex) currentIndex++;
+            } else {
+                if (currentIndex > 0) currentIndex--;
+            }
+            moveSlider();
+        }, { passive: false });
+    }
+    // --- END: LOGIC CUỘN NGANG BẰNG CHUỘT ---
+
+
+    // --- START: LOGIC KÉO-ĐỂ-LƯỚT (DRAG-TO-SCROLL) ---
+    if (productGrid) {
+        let isDown = false;
+        let startX;
+        let startTransformX;
+        productGrid.hasDragged = false; 
+
+        const getTransformX = () => new DOMMatrixReadOnly(window.getComputedStyle(productGrid).transform).m41;
+
+        const startDragging = (e) => {
+            isDown = true;
+            productGrid.hasDragged = false;
+            productGrid.classList.add('grabbing');
+            
+            startX = (e.pageX || e.touches[0].pageX) - productGrid.offsetLeft;
+            startTransformX = getTransformX();
+            productGrid.style.transition = 'none'; // Tắt transition khi đang kéo
+        };
+
+        const stopDragging = () => {
+            if (!isDown) return;
+            isDown = false;
+            productGrid.classList.remove('grabbing');
+            productGrid.style.transition = 'transform 0.5s ease-in-out'; // Bật lại transition
+            
+            const card = productGrid.querySelector('.product-card');
+            if (!card) return;
+
+            const gap = parseFloat(getComputedStyle(productGrid).gap) || 32;
+            const totalWidth = card.offsetWidth + gap;
+            
+            const currentTransformX = getTransformX();
+            const currentProducts = productsPerCategory[currentCategory] || [];
+            const maxIndex = Math.max(0, currentProducts.length - itemsPerPage);
+
+            let newIndex = Math.round(-currentTransformX / totalWidth);
+            newIndex = Math.max(0, Math.min(newIndex, maxIndex));
+            
+            currentIndex = newIndex;
+            moveSlider();
+        };
+
+        const onDrag = (e) => {
+            if (!isDown) return;
+            if (e.type === 'touchmove') e.preventDefault();
+            
+            const x = (e.pageX || e.touches[0].pageX) - productGrid.offsetLeft;
+            const walk = x - startX;
+            
+            // Chỉ đánh dấu là đã kéo nếu khoảng cách kéo lớn hơn một ngưỡng nhỏ (vd: 10px)
+            if (Math.abs(walk) > 10) {
+                productGrid.hasDragged = true;
+            }
+
+            productGrid.style.transform = `translateX(${startTransformX + walk}px)`;
+        };
+
+        productGrid.addEventListener('mousedown', startDragging);
+        productGrid.addEventListener('mousemove', onDrag);
+        productGrid.addEventListener('mouseup', stopDragging);
+        productGrid.addEventListener('mouseleave', stopDragging);
+        
+        productGrid.addEventListener('touchstart', startDragging, { passive: true });
+        productGrid.addEventListener('touchmove', onDrag, { passive: false });
+        productGrid.addEventListener('touchend', stopDragging);
+    }
+    // --- END: LOGIC KÉO-ĐỂ-LƯỚT ---
+    
+    // --- START: Thêm logic cho nút Back to Top ---
+    const backToTopButton = document.getElementById('back-to-top');
+
+    if (backToTopButton) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) { // Hiển thị nút sau khi cuộn xuống 300px
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+    }
+    // --- END: Thêm logic cho nút Back to Top ---
+
+
     window.addEventListener('resize', () => {
         updateItemsPerPage();
         moveSlider();
+        updateHeaderHeight();
     });
 });
 
