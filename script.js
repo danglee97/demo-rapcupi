@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('product-modal');
     const modalContent = document.getElementById('modal-content');
     const modalCloseBtn = document.getElementById('modal-close-btn');
-    const modalImg = document.getElementById('modal-img');
+    const modalMainImg = document.getElementById('modal-main-img');
+    const modalThumbnailGallery = document.getElementById('modal-thumbnail-gallery');
     const modalName = document.getElementById('modal-name');
     const modalDesc = document.getElementById('modal-desc');
     const modalPrice = document.getElementById('modal-price');
@@ -140,28 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // === CẢI TIẾN HÀM HIỂN THỊ THÔNG BÁO ===
     function showToast(message, isError = false) {
-        if (!toast || !toastMessage) {
-            console.error("Toast elements not found!");
-            return;
-        }
+        if (!toast || !toastMessage) return;
         toastMessage.textContent = message;
-        
-        // Xóa các lớp màu cũ một cách an toàn hơn
         toast.classList.remove('bg-green-500', 'bg-red-500');
-        
-        // Thêm lớp màu mới
-        if (isError) {
-            toast.classList.add('bg-red-500');
-        } else {
-            toast.classList.add('bg-green-500');
-        }
-        
-        // Hiển thị thông báo
+        toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
         toast.classList.remove('opacity-0', 'translate-x-full');
-        
-        // Tự động ẩn sau 3 giây
         setTimeout(() => {
             toast.classList.add('opacity-0', 'translate-x-full');
         }, 3000);
@@ -169,15 +154,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Modal Functions ---
     function openModal(product) {
-        if (!modal || !modalContent) return;
-        modalImg.src = product.image_url;
-        modalImg.onerror = () => { modalImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
-        modalImg.alt = product.name;
+        if (!modal || !modalContent || !product.gallery || product.gallery.length === 0) return;
+    
+        // Xóa các ảnh thumbnail cũ
+        modalThumbnailGallery.innerHTML = '';
+        
+        // Đặt ảnh chính là ảnh đầu tiên trong bộ sưu tập
+        modalMainImg.src = product.gallery[0];
+        modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
+    
+        // Tạo và hiển thị các ảnh thumbnail
+        product.gallery.forEach((imageUrl, index) => {
+            const thumb = document.createElement('img');
+            thumb.src = imageUrl;
+            thumb.alt = `${product.name} thumbnail ${index + 1}`;
+            thumb.classList.add('thumbnail-img');
+            if (index === 0) {
+                thumb.classList.add('active');
+            }
+            
+            // Thêm sự kiện click để đổi ảnh chính
+            thumb.addEventListener('click', () => {
+                modalMainImg.src = imageUrl;
+                document.querySelectorAll('#modal-thumbnail-gallery .thumbnail-img').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+            });
+            
+            modalThumbnailGallery.appendChild(thumb);
+        });
+    
+        // Điền thông tin chi tiết sản phẩm
         modalName.textContent = product.name;
         modalDesc.textContent = product.description;
         modalPrice.textContent = `${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ`;
         modalAddBtn.dataset.id = product.id;
-
+    
+        // Hiển thị modal
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(() => modalContent.classList.remove('scale-95'), 10);
