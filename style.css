@@ -102,15 +102,8 @@ h1, h2, h3, .font-dancing {
 .grabbing {
     cursor: grabbing;
 }
-.product-card, .product-image {
-    pointer-events: none; /* Ngăn các sự kiện click không mong muốn khi kéo */
-}
-#product-grid.dragging .product-card, 
-#product-grid.dragging .product-image {
+#product-grid.dragging .product-card {
     pointer-events: none;
-}
-#product-grid .add-to-cart-btn {
-    pointer-events: auto; /* Cho phép click nút 'Chọn' */
 }
 
 
@@ -136,14 +129,11 @@ main, section {
     scroll-margin-top: var(--header-height, 5.5rem);
 }
 
-/* START: Thêm style cho nút Back to Top */
 #back-to-top.visible {
     opacity: 1;
     visibility: visible;
 }
-/* END: Thêm style cho nút Back to Top */
 
-/* START: Thêm background trang trí cho Footer */
 .footer-bg {
     position: relative;
     background-color: #1f2937; /* bg-gray-800 */
@@ -163,5 +153,24 @@ main, section {
     position: relative;
     z-index: 1;
 }
-/* END: Thêm background trang trí cho Footer */
+
+/* START: CSS cho hiệu ứng gõ chữ */
+#hero-title {
+    /* Đảm bảo container không bị xẹp khi trống */
+    min-height: 1.2em; 
+    display: inline-block;
+}
+#hero-title::after {
+    content: '|';
+    display: inline-block;
+    margin-left: 0.1em;
+    animation: blink 0.7s infinite;
+    font-weight: normal;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+/* END: CSS cho hiệu ứng gõ chữ */
 

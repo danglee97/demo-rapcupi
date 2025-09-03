@@ -53,6 +53,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- START: Thêm hàm cho hiệu ứng gõ chữ ---
+    function startTypingEffect(element, speed = 150) {
+        if (!element) return;
+        
+        const textToType = element.textContent.trim();
+        let i = 0;
+        element.innerHTML = ''; // Xóa nội dung hiện tại
+
+        function typeWriter() {
+            if (i < textToType.length) {
+                element.innerHTML += textToType.charAt(i);
+                i++;
+                setTimeout(typeWriter, speed);
+            }
+        }
+        
+        // Thêm một khoảng trễ nhỏ trước khi bắt đầu để đảm bảo font chữ đã được tải
+        setTimeout(typeWriter, 500);
+    }
+    // --- END: Thêm hàm cho hiệu ứng gõ chữ ---
+
     // --- Hero Slideshow Function ---
     function startHeroSlideshow(imageUrls) {
         if (!heroImage || imageUrls.length === 0) return;
@@ -119,12 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             allProducts = data;
 
-            // --- START: Tạo một kho ảnh dự phòng từ tất cả sản phẩm ---
             allAvailableImages = allProducts
-                .flatMap(p => [p.image_url, ...(p.gallery || [])]) // Lấy tất cả link ảnh
-                .filter(Boolean); // Lọc bỏ các link rỗng hoặc null
-            allAvailableImages = [...new Set(allAvailableImages)]; // Xóa các link trùng lặp
-            // --- END: Tạo kho ảnh dự phòng ---
+                .flatMap(p => [p.image_url, ...(p.gallery || [])]) 
+                .filter(Boolean); 
+            allAvailableImages = [...new Set(allAvailableImages)];
 
             const slideshowImages = allProducts.flatMap(p => p.gallery || []).filter(Boolean);
             if (slideshowImages.length > 0) {
@@ -164,41 +183,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-
-    // --- START: CẬP NHẬT LOGIC XỬ LÝ ẢNH LỖI ---
-    // Hàm này tạo ra một trình xử lý lỗi riêng cho mỗi ảnh sản phẩm
+    
     function createImageErrorHandler(product) {
         let attempts = 0;
         
-        // Xây dựng một danh sách các lựa chọn thay thế
         const fallbacks = [
-            // 1. Ảnh đầu tiên trong gallery của chính sản phẩm đó
             product.gallery && product.gallery[0],
-            // 2. Một ảnh ngẫu nhiên từ kho ảnh dự phòng
             () => (allAvailableImages.length > 0 
                 ? allAvailableImages[Math.floor(Math.random() * allAvailableImages.length)] 
                 : null),
-            // 3. Logo của trang web làm giải pháp cuối cùng
             'logo.png'
-        ].filter(Boolean); // Lọc bỏ các giá trị rỗng
+        ].filter(Boolean);
 
-        // Trả về một hàm để gán cho sự kiện 'error'
         return function handleError(event) {
             const imgElement = event.target;
-            // Nếu vẫn còn lựa chọn thay thế
             if (attempts < fallbacks.length) {
                 let nextSrc = fallbacks[attempts];
-                // Nếu lựa chọn là một hàm (trường hợp ảnh ngẫu nhiên), hãy gọi nó
                 if (typeof nextSrc === 'function') {
                     nextSrc = nextSrc();
                 }
-                // Nếu có link ảnh, gán nó vào src
                 if(nextSrc) {
                     imgElement.src = nextSrc;
                 }
                 attempts++;
             } else {
-                // Nếu đã thử hết mà vẫn lỗi, xóa sự kiện để tránh lặp vô tận
                 imgElement.removeEventListener('error', handleError);
             }
         };
@@ -218,13 +226,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Tạo HTML cho các thẻ sản phẩm
         productGrid.innerHTML = filteredProducts.map((product, index) => {
             const imageId = `product-image-${category.replace(/\s/g, '-')}-${index}`;
             return `
             <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
                 <div class="product-image-container h-48 overflow-hidden">
-                    <img id="${imageId}" src="${product.image_url || ''}" alt="${product.name}" class="product-image w-full h-full object-cover cursor-pointer" data-id="${product.id}">
+                    <img id="${imageId}" src="${product.image_url || ''}" alt="${product.name}" class="product-image w-full h-full object-cover" data-id="${product.id}">
                 </div>
                 <div class="p-4 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold text-gray-800">${product.name}</h3>
@@ -239,19 +246,16 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `}).join('');
         
-        // Sau khi HTML được chèn vào trang, gán sự kiện lỗi cho từng ảnh
         filteredProducts.forEach((product, index) => {
             const imageId = `product-image-${category.replace(/\s/g, '-')}-${index}`;
             const imgElement = document.getElementById(imageId);
             if (imgElement) {
                 imgElement.addEventListener('error', createImageErrorHandler(product));
-                // Nếu thẻ img không có src ban đầu, kích hoạt sự kiện lỗi để bắt đầu chuỗi thay thế
                 if (!imgElement.getAttribute('src')) {
                     imgElement.dispatchEvent(new Event('error'));
                 }
             }
         });
-        // --- END: CẬP NHẬT LOGIC XỬ LÝ ẢNH LỖI ---
         
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -452,6 +456,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Initializations & Event Listeners ---
     updateHeaderHeight();
+    // --- START: Gọi hàm hiệu ứng gõ chữ ---
+    startTypingEffect(document.getElementById('hero-title'), 150);
+    // --- END: Gọi hàm hiệu ứng gõ chữ ---
     fetchProducts();
 
     if (bookingForm) {
@@ -459,9 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (productGrid) {
-        // --- START: Cập nhật logic click để tương thích với kéo thả ---
         const handleProductClick = (e) => {
-            // Chỉ mở modal nếu sự kiện không phải từ nút "Chọn"
             if (e.target.closest('.add-to-cart-btn')) {
                 return;
             }
@@ -477,15 +482,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // Sử dụng 'mouseup' thay vì 'click' để tránh xung đột với kéo-thả
         productGrid.addEventListener('mouseup', (e) => {
-            // Biến `hasDragged` được định nghĩa trong logic kéo-thả
-            // Nếu không có hành động kéo, thì thực hiện click
             if (!productGrid.hasDragged) {
                 handleProductClick(e);
             }
         });
-         // --- END: Cập nhật logic click ---
     }
 
     if (modal && modalCloseBtn && modalAddBtn) {
@@ -529,7 +530,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- START: LOGIC CUỘN NGANG BẰNG CHUỘT (WHEEL SCROLL) ---
     if (sliderContainer) {
         sliderContainer.addEventListener('wheel', (e) => {
             if (e.deltaY === 0) return;
@@ -546,10 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
             moveSlider();
         }, { passive: false });
     }
-    // --- END: LOGIC CUỘN NGANG BẰNG CHUỘT ---
 
-
-    // --- START: LOGIC KÉO-ĐỂ-LƯỚT (DRAG-TO-SCROLL) ---
     if (productGrid) {
         let isDown = false;
         let startX;
@@ -565,14 +562,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             startX = (e.pageX || e.touches[0].pageX) - productGrid.offsetLeft;
             startTransformX = getTransformX();
-            productGrid.style.transition = 'none'; // Tắt transition khi đang kéo
+            productGrid.style.transition = 'none';
         };
 
         const stopDragging = () => {
             if (!isDown) return;
             isDown = false;
             productGrid.classList.remove('grabbing');
-            productGrid.style.transition = 'transform 0.5s ease-in-out'; // Bật lại transition
+            productGrid.style.transition = 'transform 0.5s ease-in-out';
             
             const card = productGrid.querySelector('.product-card');
             if (!card) return;
@@ -598,7 +595,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const x = (e.pageX || e.touches[0].pageX) - productGrid.offsetLeft;
             const walk = x - startX;
             
-            // Chỉ đánh dấu là đã kéo nếu khoảng cách kéo lớn hơn một ngưỡng nhỏ (vd: 10px)
             if (Math.abs(walk) > 10) {
                 productGrid.hasDragged = true;
             }
@@ -615,21 +611,18 @@ document.addEventListener('DOMContentLoaded', () => {
         productGrid.addEventListener('touchmove', onDrag, { passive: false });
         productGrid.addEventListener('touchend', stopDragging);
     }
-    // --- END: LOGIC KÉO-ĐỂ-LƯỚT ---
     
-    // --- START: Thêm logic cho nút Back to Top ---
     const backToTopButton = document.getElementById('back-to-top');
 
     if (backToTopButton) {
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) { // Hiển thị nút sau khi cuộn xuống 300px
+            if (window.scrollY > 300) {
                 backToTopButton.classList.add('visible');
             } else {
                 backToTopButton.classList.remove('visible');
             }
         });
     }
-    // --- END: Thêm logic cho nút Back to Top ---
 
 
     window.addEventListener('resize', () => {
