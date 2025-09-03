@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 startHeroSlideshow([...new Set(slideshowImages)]);
             }
             
+            renderFeaturedProjects(); // Nâng cấp: Gọi hàm render dự án nổi bật
             renderCategories();
             const firstCategory = [...new Set(allProducts.map(p => p.category))][0];
             if (firstCategory) {
@@ -164,10 +165,43 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             loader.style.display = 'none';
             sliderContainer.classList.remove('hidden');
+            // Sau khi tải xong sản phẩm, khởi tạo hiệu ứng cuộn
+            initializeScrollReveal();
         }
     }
 
     // --- UI Rendering ---
+
+    // Nâng cấp: Hàm mới để render mục "Dự án nổi bật"
+    function renderFeaturedProjects() {
+        const grid = document.getElementById('featured-projects-grid');
+        if (!grid) return;
+
+        // 1. Lấy tất cả ảnh từ gallery của sản phẩm
+        const allGalleryImages = allProducts.flatMap(p => p.gallery || []).filter(Boolean);
+        if (allGalleryImages.length === 0) {
+            grid.innerHTML = '<p class="text-center text-gray-500 col-span-full">Chưa có dự án nào để hiển thị.</p>';
+            return;
+        }
+
+        // 2. Lọc ảnh trùng lặp và xáo trộn ngẫu nhiên
+        const uniqueImages = [...new Set(allGalleryImages)];
+        for (let i = uniqueImages.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [uniqueImages[i], uniqueImages[j]] = [uniqueImages[j], uniqueImages[i]];
+        }
+
+        // 3. Lấy 6 ảnh đầu tiên để hiển thị
+        const imagesToShow = uniqueImages.slice(0, 6);
+
+        // 4. Tạo HTML và chèn vào grid
+        grid.innerHTML = imagesToShow.map((imgUrl, index) => `
+            <div class="group overflow-hidden rounded-lg shadow-lg reveal-on-scroll" style="transition-delay: ${index * 100}ms;">
+                <img src="${imgUrl}" alt="Dự án nổi bật ${index + 1}" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null;this.src='https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi';">
+            </div>
+        `).join('');
+    }
+
     function renderCategories() {
         if (!categoryFilters || allProducts.length === 0) return;
         const categories = [...new Set(allProducts.map(p => p.category))];
@@ -260,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleAddToCart(btn.dataset.id)
+                handleAddToCart(btn.dataset.id, e); // NÂNG CẤP: Truyền sự kiện (event) vào hàm
             });
         });
 
@@ -381,17 +415,71 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProducts(category);
     }
     
-    function handleAddToCart(productId) {
+    // --- NÂNG CẤP: Bắt đầu ---
+    // Hàm trợ giúp tạo hiệu ứng "bay"
+    function flyToCart(sourceElement) {
+        const cartEl = document.getElementById('selected-items');
+        if (!sourceElement || !cartEl) return;
+        
+        const imgRect = sourceElement.getBoundingClientRect();
+        const cartRect = cartEl.getBoundingClientRect();
+    
+        const flyingImage = document.createElement('img');
+        flyingImage.src = sourceElement.src;
+        flyingImage.classList.add('fly-to-cart-image');
+    
+        // Đặt vị trí ban đầu
+        flyingImage.style.left = `${imgRect.left}px`;
+        flyingImage.style.top = `${imgRect.top}px`;
+        flyingImage.style.width = `${imgRect.width}px`;
+        flyingImage.style.height = `${imgRect.height}px`;
+    
+        document.body.appendChild(flyingImage);
+    
+        // Bắt đầu animation
+        requestAnimationFrame(() => {
+            flyingImage.style.left = `${cartRect.left + cartRect.width / 2}px`;
+            flyingImage.style.top = `${cartRect.top + cartRect.height / 2}px`;
+            flyingImage.style.width = '0px';
+            flyingImage.style.height = '0px';
+            flyingImage.style.opacity = '0.5';
+            flyingImage.style.transform = 'scale(0.2) rotate(180deg)';
+        });
+    
+        // Xóa element sau khi animation kết thúc
+        flyingImage.addEventListener('transitionend', () => {
+            flyingImage.remove();
+        }, { once: true });
+    }
+
+    // Hàm handleAddToCart được cập nhật
+    function handleAddToCart(productId, event) {
         const product = allProducts.find(p => p.id == productId);
         if (!product) return;
+
+        // Kích hoạt hiệu ứng nếu có `event` (tức là được click từ card sản phẩm)
+        if (event && event.target) {
+            const productCard = event.target.closest('.product-card');
+            if (productCard) {
+                const productImage = productCard.querySelector('.product-image');
+                if (productImage) {
+                    flyToCart(productImage);
+                }
+            }
+        }
+    
+        // Logic thêm sản phẩm vào giỏ hàng
         if (selectedProducts[productId]) {
             selectedProducts[productId].quantity++;
         } else {
             selectedProducts[productId] = { ...product, quantity: 1 };
         }
-        renderSelectedItems();
+        
+        // Cập nhật giỏ hàng sau một khoảng trễ nhỏ
+        setTimeout(() => renderSelectedItems(), 100); 
         showToast(`Đã thêm "${product.name}"!`);
     }
+    // --- NÂNG CẤP: Kết thúc ---
     
     function handleChangeQuantity(productId, change) {
         if (!selectedProducts[productId]) return;
@@ -454,12 +542,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // --- NÂNG CẤP: Hàm cho hiệu ứng "Hiện ra khi cuộn" ---
+    function initializeScrollReveal() {
+        const revealElements = document.querySelectorAll('.reveal-on-scroll');
+        if (revealElements.length === 0) return;
+    
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Lấy độ trễ từ inline style (nếu có)
+                    const delay = parseInt(entry.target.style.transitionDelay) || 0;
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
+                    // Ngừng quan sát phần tử sau khi đã hiển thị
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            root: null, // Quan sát so với viewport
+            threshold: 0.1 // Kích hoạt khi 10% phần tử hiện ra
+        });
+    
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
+        });
+    }
+
     // --- Initializations & Event Listeners ---
     updateHeaderHeight();
-    // --- START: Gọi hàm hiệu ứng gõ chữ ---
     startTypingEffect(document.getElementById('hero-title'), 150);
-    // --- END: Gọi hàm hiệu ứng gõ chữ ---
     fetchProducts();
+    // GỌI HÀM HIỆU ỨNG CUỘN Ở ĐÂY LÀ CHƯA ĐÚNG VÌ CÁC MỤC CHƯA TẢI XONG
+    // SẼ DI CHUYỂN VÀO `finally` CỦA `fetchProducts`
 
     if (bookingForm) {
         bookingForm.addEventListener('submit', handleFormSubmit);
@@ -494,8 +609,11 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
         });
+        // NÂNG CẤP: Listener cho nút thêm trong modal
         modalAddBtn.addEventListener('click', () => {
-            handleAddToCart(modalAddBtn.dataset.id);
+            const sourceImg = document.getElementById('modal-main-img');
+            flyToCart(sourceImg); // Kích hoạt hiệu ứng bay từ ảnh trong modal
+            handleAddToCart(modalAddBtn.dataset.id, null); // Gọi hàm gốc không có event
             closeModal();
         });
     }
