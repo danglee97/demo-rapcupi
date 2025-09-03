@@ -140,12 +140,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // === CẢI TIẾN HÀM HIỂN THỊ THÔNG BÁO ===
     function showToast(message, isError = false) {
-        if (!toast || !toastMessage) return;
+        if (!toast || !toastMessage) {
+            console.error("Toast elements not found!");
+            return;
+        }
         toastMessage.textContent = message;
-        toast.className = toast.className.replace(/bg-green-500|bg-red-500/, isError ? 'bg-red-500' : 'bg-green-500');
+        
+        // Xóa các lớp màu cũ một cách an toàn hơn
+        toast.classList.remove('bg-green-500', 'bg-red-500');
+        
+        // Thêm lớp màu mới
+        if (isError) {
+            toast.classList.add('bg-red-500');
+        } else {
+            toast.classList.add('bg-green-500');
+        }
+        
+        // Hiển thị thông báo
         toast.classList.remove('opacity-0', 'translate-x-full');
         
+        // Tự động ẩn sau 3 giây
         setTimeout(() => {
             toast.classList.add('opacity-0', 'translate-x-full');
         }, 3000);
