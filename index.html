@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÚT MINH - Dịch Vụ Trang Trí Cưới Hỏi</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-rose-50 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+             <a href="#" class="flex-shrink-0">
+                <img src="logo.png" alt="ÚT MINH Logo" class="h-12 sm:h-14">
+            </a>
+            <nav>
+                <a href="#products" class="text-gray-600 hover:text-red-500 px-3 py-2 text-sm sm:text-base">Sản phẩm</a>
+                <a href="#booking" class="bg-red-500 text-white rounded-full px-4 py-2 hover:bg-red-600 transition-colors text-sm sm:text-base">Đặt Dịch Vụ</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative h-[50vh] min-h-[400px]">
+        <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover" alt="Trang trí đám cưới">
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="text-center text-white p-4">
+                <h2 class="text-4xl md:text-6xl font-dancing">ÚT MINH - Weddings and Events</h2>
+                <div class="mt-4 text-base md:text-lg max-w-2xl mx-auto space-y-2">
+                    <p>💖 Dịch vụ nổi bật 💖</p>
+                    <p>🎀 Trang trí tiệc cưới theo xu hướng mới nhất</p>
+                    <p>🎀 Thiết kế backdrop, cổng hoa, bàn gallery ấn tượng</p>
+                    <p>🎀 Trang trí sự kiện & Setup không gian sang trọng, phù hợp ngân sách</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <main id="products" class="container mx-auto px-4 sm:px-6 py-12">
+        <h2 class="text-4xl font-bold text-center mb-2 font-dancing text-red-600">Mẫu Sản Phẩm</h2>
+        <p class="text-center text-gray-600 mb-8">Lựa chọn các sản phẩm ưng ý cho ngày trọng đại của bạn.</p>
+        
+        <!-- Category Filters -->
+        <div id="category-filters" class="flex justify-center flex-wrap gap-2 mb-8">
+            <!-- Categories will be loaded here -->
+        </div>
+
+        <!-- Product Grid -->
+        <div id="loader" class="flex justify-center items-center h-64">
+            <div class="loader"></div>
+        </div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 hidden">
+            <!-- Products will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Booking Section -->
+    <section id="booking" class="bg-white">
+        <div class="container mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Selected Items -->
+            <div class="lg:col-span-1 bg-rose-50 p-6 rounded-lg shadow-inner">
+                <h3 class="text-2xl font-bold mb-4 border-b pb-2 text-red-600 font-dancing">Sản phẩm đã chọn</h3>
+                <div id="selected-items" class="space-y-4">
+                    <p class="text-gray-500">Chưa có sản phẩm nào được chọn.</p>
+                </div>
+                <div class="mt-6 pt-4 border-t-2 border-dashed">
+                    <p class="text-lg font-bold flex justify-between">Tổng cộng: <span id="total-price">0 VNĐ</span></p>
+                </div>
+            </div>
+
+            <!-- Customer Form -->
+            <div class="lg:col-span-2">
+                <h3 class="text-2xl font-bold mb-4 text-red-600 font-dancing">Thông tin đặt hàng</h3>
+                <form id="booking-form" class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Họ và tên</label>
+                        <input type="text" id="name" name="name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                        <input type="tel" id="phone" name="phone" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="event-date" class="block text-sm font-medium text-gray-700">Ngày tổ chức</label>
+                        <input type="date" id="event-date" name="event-date" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                        <textarea id="address" name="address" rows="3" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500"></textarea>
+                    </div>
+                    <button id="submit-btn" type="submit" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center">
+                        <span id="submit-text">Gửi Yêu Cầu</span>
+                        <div id="submit-spinner" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin hidden"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 sm:px-6 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                <div class="md:col-span-1">
+                    <img src="logo.png" alt="ÚT MINH Logo" class="h-14 mx-auto md:mx-0 mb-2">
+                    <p class="text-gray-400 text-sm">Weddings and Events</p>
+                </div>
+                <div class="text-sm">
+                    <h4 class="font-bold uppercase text-gray-300 mb-2">Địa chỉ</h4>
+                    <p class="text-gray-400">Cơ sở 1: Khóm 4, xã Càng Long, tỉnh Vĩnh Long</p>
+                    <p class="text-gray-400">Cơ sở 2: Đường D5, P5, tỉnh Vĩnh Long</p>
+                </div>
+                <div class="text-sm">
+                    <h4 class="font-bold uppercase text-gray-300 mb-2">Liên hệ</h4>
+                    <p class="text-gray-400">Hotline tư vấn & đặt dịch vụ:</p>
+                    <a href="tel:0939990092" class="text-red-400 font-bold text-lg hover:text-red-300">093.999.00.92</a>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-500 text-sm">
+                <p>&copy; 2025 ÚT MINH - Weddings and Events. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col md:flex-row relative transform scale-95 transition-transform duration-300">
+            <!-- Close button -->
+            <button id="modal-close-btn" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-8 w-8 flex items-center justify-center shadow-lg text-xl">&times;</button>
+
+            <img id="modal-img" src="" alt="Product image" class="w-full md:w-1/2 h-64 md:h-auto object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none">
+
+            <div class="p-6 flex flex-col flex-grow overflow-y-auto">
+                <h3 id="modal-name" class="text-3xl font-bold font-dancing text-gray-800"></h3>
+                <p id="modal-desc" class="text-gray-600 mt-2 flex-grow"></p>
+                <div class="mt-4 flex justify-between items-center">
+                    <p id="modal-price" class="text-2xl font-extrabold text-red-500"></p>
+                    <button id="modal-add-btn" class="bg-red-500 text-white rounded-full px-6 py-2 hover:bg-red-600 transition-colors font-semibold" data-id="">
+                        Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 translate-x-full transition-all duration-300">
+        <p id="toast-message"></p>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+
+</body>
+</html>
+
