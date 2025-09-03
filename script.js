@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UI Elements ---
     const productGrid = document.getElementById('product-grid');
     const loader = document.getElementById('loader');
+    const sliderContainer = document.getElementById('slider-container');
     const categoryFilters = document.getElementById('category-filters');
     const selectedItemsDiv = document.getElementById('selected-items');
     const totalPriceEl = document.getElementById('total-price');
@@ -12,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = document.getElementById('submit-btn');
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
+    const heroImage = document.getElementById('hero-image');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
 
     // Modal elements
     const modal = document.getElementById('product-modal');
@@ -27,22 +32,87 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let allProducts = [];
     let selectedProducts = {}; 
+    let heroSlideshowInterval = null;
+    let productsPerCategory = {};
+    let currentCategory = '';
+    let currentIndex = 0;
+    let itemsPerPage = 4;
+
+    // --- Hero Slideshow Function ---
+    function startHeroSlideshow(imageUrls) {
+        if (!heroImage || imageUrls.length === 0) return;
+        if (heroSlideshowInterval) clearInterval(heroSlideshowInterval);
+
+        let currentImageIndex = -1;
+        const changeImage = () => {
+            let nextImageIndex;
+            do {
+                nextImageIndex = Math.floor(Math.random() * imageUrls.length);
+            } while (imageUrls.length > 1 && nextImageIndex === currentImageIndex);
+            
+            currentImageIndex = nextImageIndex;
+            heroImage.style.opacity = 0;
+            setTimeout(() => {
+                heroImage.src = imageUrls[currentImageIndex];
+                heroImage.style.opacity = 1;
+            }, 1000);
+        };
+        changeImage(); 
+        heroSlideshowInterval = setInterval(changeImage, 5000);
+    }
+
+    // --- Slider Functions ---
+    function updateItemsPerPage() {
+        if (window.innerWidth < 640) itemsPerPage = 1;
+        else if (window.innerWidth < 1024) itemsPerPage = 2;
+        else if (window.innerWidth < 1280) itemsPerPage = 3;
+        else itemsPerPage = 4;
+    }
+
+    function updateSliderButtons() {
+        if (!prevBtn || !nextBtn) return;
+        const currentProducts = productsPerCategory[currentCategory] || [];
+        
+        const showButtons = currentProducts.length > itemsPerPage;
+        prevBtn.classList.toggle('hidden', !showButtons || currentIndex === 0);
+        nextBtn.classList.toggle('hidden', !showButtons || currentIndex >= currentProducts.length - itemsPerPage);
+    }
+
+    function moveSlider() {
+        if (!productGrid) return;
+        const card = productGrid.querySelector('.product-card');
+        if (!card) return;
+
+        const gap = parseFloat(getComputedStyle(productGrid).gap) || 32;
+        const cardWidth = card.offsetWidth;
+        const totalWidth = cardWidth + gap;
+
+        productGrid.style.transform = `translateX(-${currentIndex * totalWidth}px)`;
+        updateSliderButtons();
+    }
+
 
     // --- Data Fetching ---
     async function fetchProducts() {
         try {
-            if(loader) loader.style.display = 'flex';
-            if(productGrid) productGrid.classList.add('hidden');
+            loader.style.display = 'flex';
+            sliderContainer.classList.add('hidden');
             
             const response = await fetch(`${SCRIPT_URL}?action=getProducts`);
             if (!response.ok) throw new Error('Network response was not ok.');
             
             const data = await response.json();
             allProducts = data;
+
+            const slideshowImages = allProducts.flatMap(p => p.gallery || []).filter(Boolean);
+            if (slideshowImages.length > 0) {
+                startHeroSlideshow([...new Set(slideshowImages)]);
+            }
             
             renderCategories();
-            if (allProducts.length > 0 && allProducts[0].category) {
-                 renderProducts(allProducts[0].category);
+            const firstCategory = [...new Set(allProducts.map(p => p.category))][0];
+            if (firstCategory) {
+                 renderProducts(firstCategory);
             } else if (productGrid) {
                 productGrid.innerHTML = `<p class="text-center text-gray-500 col-span-full">Chưa có sản phẩm nào để hiển thị.</p>`;
             }
@@ -51,8 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching products:', error);
             if(productGrid) productGrid.innerHTML = `<p class="text-center text-red-500 col-span-full">Đã xảy ra lỗi khi tải sản phẩm. Vui lòng thử lại.</p>`;
         } finally {
-            if(loader) loader.style.display = 'none';
-            if(productGrid) productGrid.classList.remove('hidden');
+            loader.style.display = 'none';
+            sliderContainer.classList.remove('hidden');
         }
     }
 
@@ -76,8 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProducts(category) {
         if (!productGrid) return;
         const filteredProducts = allProducts.filter(p => p.category === category);
+        productsPerCategory[category] = filteredProducts;
+        currentCategory = category;
+        currentIndex = 0;
+
         if (filteredProducts.length === 0) {
-            productGrid.innerHTML = `<p class="text-center text-gray-500 col-span-full">Không có sản phẩm nào trong danh mục này.</p>`;
+            productGrid.innerHTML = `<p class="w-full text-center text-gray-500">Không có sản phẩm nào trong danh mục này.</p>`;
+            productGrid.style.transform = 'translateX(0px)';
+            updateSliderButtons();
             return;
         }
 
@@ -99,10 +175,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Ngăn sự kiện click lan ra ảnh
+                e.stopPropagation();
                 handleAddToCart(btn.dataset.id)
             });
         });
+
+        updateItemsPerPage();
+        moveSlider();
     }
     
     function renderSelectedItems() {
@@ -156,24 +235,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal(product) {
         if (!modal || !modalContent || !product.gallery || product.gallery.length === 0) return;
     
-        // Xóa các ảnh thumbnail cũ
         modalThumbnailGallery.innerHTML = '';
-        
-        // Đặt ảnh chính là ảnh đầu tiên trong bộ sưu tập
         modalMainImg.src = product.gallery[0];
         modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
     
-        // Tạo và hiển thị các ảnh thumbnail
         product.gallery.forEach((imageUrl, index) => {
             const thumb = document.createElement('img');
             thumb.src = imageUrl;
             thumb.alt = `${product.name} thumbnail ${index + 1}`;
             thumb.classList.add('thumbnail-img');
-            if (index === 0) {
-                thumb.classList.add('active');
-            }
+            if (index === 0) thumb.classList.add('active');
             
-            // Thêm sự kiện click để đổi ảnh chính
             thumb.addEventListener('click', () => {
                 modalMainImg.src = imageUrl;
                 document.querySelectorAll('#modal-thumbnail-gallery .thumbnail-img').forEach(t => t.classList.remove('active'));
@@ -183,13 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
             modalThumbnailGallery.appendChild(thumb);
         });
     
-        // Điền thông tin chi tiết sản phẩm
         modalName.textContent = product.name;
         modalDesc.textContent = product.description;
         modalPrice.textContent = `${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ`;
         modalAddBtn.dataset.id = product.id;
     
-        // Hiển thị modal
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(() => modalContent.classList.remove('scale-95'), 10);
@@ -294,10 +364,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (productGrid) {
         productGrid.addEventListener('click', (e) => {
-            if (e.target.classList.contains('product-image')) {
-                const productId = e.target.dataset.id;
-                const product = allProducts.find(p => p.id == productId);
-                if (product) openModal(product);
+            const card = e.target.closest('.product-card');
+            if (card) {
+                const image = card.querySelector('.product-image');
+                if (image && e.target.tagName.toLowerCase() !== 'button') {
+                     const productId = image.dataset.id;
+                     const product = allProducts.find(p => p.id == productId);
+                     if (product) openModal(product);
+                }
             }
         });
     }
@@ -312,5 +386,27 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal();
         });
     }
+    
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                moveSlider();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const currentProducts = productsPerCategory[currentCategory] || [];
+            if (currentIndex < currentProducts.length - itemsPerPage) {
+                currentIndex++;
+                moveSlider();
+            }
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        updateItemsPerPage();
+        moveSlider();
+    });
 });
 

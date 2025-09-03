@@ -19,7 +19,7 @@
     <!-- === META TAGS CHO MẠNG XÃ HỘI (OPEN GRAPH) - Đã có === -->
     <meta property="og:title" content="ÚT MINH - Dịch Vụ Trang Trí Cưới Hỏi Chuyên Nghiệp">
     <meta property="og:description" content="Chuyên trang trí tiệc cưới, sự kiện theo xu hướng mới nhất. Lựa chọn các mẫu sản phẩm ưng ý cho ngày trọng đại của bạn.">
-    <meta property="og:image" content="https://scontent.fhan3-2.fna.fbcdn.net/v/t39.30808-6/537823649_1215235720409276_2060325689746331789_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=HNETxK5nOrcQ7kNvwEd0ZCK&_nc_oc=AdlIOa67dGxmCqvMdWs_cIsbOSSO8ZxgvENkLSAdsus84ggkHoolkwBPDoFyScpllPk&_nc_zt=23&_nc_ht=scontent.fhan3-2.fna&_nc_gid=Pi577epHv2WQt-ok9CQm-w&oh=00_AfZtfCuWkX3yCCHB5Ek_xl9jjp3o8yOl99MQtPL1J_idiQ&oe=68BDD33C">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop">
     <meta property="og:url" content="http://rapcuoiutminh.com">
     <meta property="og:type" content="website">
     <!-- =============================================== -->
@@ -30,7 +30,7 @@
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "ÚT MINH - Weddings and Events",
-      "image": "https://scontent.fhan3-2.fna.fbcdn.net/v/t39.30808-6/537823649_1215235720409276_2060325689746331789_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=HNETxK5nOrcQ7kNvwEd0ZCK&_nc_oc=AdlIOa67dGxmCqvMdWs_cIsbOSSO8ZxgvENkLSAdsus84ggkHoolkwBPDoFyScpllPk&_nc_zt=23&_nc_ht=scontent.fhan3-2.fna&_nc_gid=Pi577epHv2WQt-ok9CQm-w&oh=00_AfZtfCuWkX3yCCHB5Ek_xl9jjp3o8yOl99MQtPL1J_idiQ&oe=68BDD33C",
+      "image": "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop",
       "url": "http://rapcuoiutminh.com",
       "telephone": "+84939990092",
       "priceRange": "$$",
@@ -91,7 +91,7 @@
 
     <!-- Hero Section -->
     <section class="relative h-[50vh] min-h-[400px]">
-        <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover" alt="Trang trí đám cưới">
+        <img id="hero-image" src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover hero-image-transition" alt="Trang trí đám cưới">
         <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div class="text-center text-white p-4">
                 <h2 class="text-4xl md:text-6xl font-dancing">ÚT MINH - Weddings and Events</h2>
@@ -115,12 +115,24 @@
             <!-- Categories will be loaded here -->
         </div>
 
-        <!-- Product Grid -->
+        <!-- Product Slider -->
         <div id="loader" class="flex justify-center items-center h-64">
             <div class="loader"></div>
         </div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 hidden">
-            <!-- Products will be loaded here -->
+        <div id="slider-container" class="relative hidden">
+            <div id="product-grid-container" class="overflow-x-hidden w-full">
+                <div id="product-grid" class="flex gap-8 transition-transform duration-500 ease-in-out">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+            <!-- Prev Button -->
+            <button id="prev-btn" class="slider-btn absolute top-1/2 -left-4 transform -translate-y-1/2 z-10 hidden">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <!-- Next Button -->
+            <button id="next-btn" class="slider-btn absolute top-1/2 -right-4 transform -translate-y-1/2 z-10 hidden">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
         </div>
     </main>
 
@@ -194,7 +206,7 @@
     </footer>
     
     <!-- Product Detail Modal -->
-    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden items-center justify-center p-4">
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-75 z-[60] hidden items-center justify-center p-4">
         <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row relative transform scale-95 transition-transform duration-300">
             <!-- Close button -->
             <button id="modal-close-btn" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-8 w-8 flex items-center justify-center shadow-lg z-10 text-xl">&times;</button>
@@ -222,7 +234,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 translate-x-full transition-all duration-300">
+    <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 translate-x-full transition-all duration-300 z-[70]">
         <p id="toast-message"></p>
     </div>
 

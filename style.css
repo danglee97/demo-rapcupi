@@ -7,7 +7,27 @@ h1, h2, h3, .font-dancing {
 }
 .product-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+    /* Responsive widths for the slider items */
+    width: calc(100% / 1.25); /* Default for smallest screens */
 }
+@media (min-width: 640px) {
+    .product-card {
+        width: calc((100% / 2) - (2rem / 2)); /* sm: 2 items, gap-8 (2rem) */
+    }
+}
+@media (min-width: 1024px) {
+    .product-card {
+        width: calc((100% / 3) - (2rem * 2 / 3)); /* lg: 3 items */
+    }
+}
+@media (min-width: 1280px) {
+    .product-card {
+        width: calc((100% / 4) - (2rem * 3 / 4)); /* xl: 4 items */
+    }
+}
+
+
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -29,6 +49,32 @@ h1, h2, h3, .font-dancing {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Styles for Hero Slideshow Transition */
+.hero-image-transition {
+    transition: opacity 1s ease-in-out;
+}
+
+/* Styles for Product Slider */
+.slider-btn {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 9999px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.slider-btn:hover {
+    background-color: white;
+    transform: scale(1.1) translateY(-50%);
+}
+.slider-btn svg {
+    color: #4b5563; /* text-gray-600 */
+}
+
 
 /* Styles for Product Modal Gallery */
 .thumbnail-img {
