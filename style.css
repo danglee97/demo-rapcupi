@@ -174,3 +174,165 @@ main, section {
     }
 }
 
+/* START: CSS nâng cấp cho mục Testimonials */
+.testimonial-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(239, 68, 68, 0.15);
+}
+
+.testimonial-quote-icon {
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover .testimonial-quote-icon {
+    transform: scale(1.1) rotate(-5deg);
+}
+/* END: CSS nâng cấp cho mục Testimonials */
+
+/* --- START: CSS NÂNG CẤP HERO SECTION (PHIÊN BẢN HYBRID) --- */
+
+/* Slideshow ảnh nền */
+#hero-slideshow-image {
+    transition: opacity 1.5s ease-in-out; /* Hiệu ứng mờ ảo khi chuyển ảnh */
+    animation: kenburns 20s ease-in-out infinite; /* Hiệu ứng lia máy chậm */
+}
+
+/* Keyframes cho hiệu ứng Ken Burns */
+@keyframes kenburns {
+    0%, 100% {
+        transform: scale(1) translate(0, 0);
+        transform-origin: center center;
+    }
+    25% {
+        transform: scale(1.1) translate(-2%, 2%);
+        transform-origin: top left;
+    }
+    50% {
+        transform: scale(1) translate(0, 0);
+        transform-origin: center center;
+    }
+    75% {
+        transform: scale(1.1) translate(2%, -2%);
+        transform-origin: bottom right;
+    }
+}
+
+/* Khung video mô phỏng điện thoại (giữ nguyên từ lần trước) */
+.video-frame {
+    width: 280px;
+    height: 580px;
+    transition: transform 0.4s ease-out;
+}
+.video-frame:hover {
+    transform: scale(1.03) rotate(-1deg);
+}
+
+/* Responsive (giữ nguyên từ lần trước) */
+@media (max-width: 1023px) {
+    #home .grid {
+        flex-direction: column-reverse;
+        display: flex;
+    }
+    .video-frame {
+        width: 250px;
+        height: 520px;
+        margin-bottom: 2rem;
+    }
+    #hero-title {
+        font-size: 3.5rem;
+    }
+}
+
+/* Hiệu ứng văn bản (giữ nguyên) */
+#hero-title, .hero-subtitle, .hero-cta-buttons {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+.hero-subtitle { animation-delay: 0.3s; }
+.hero-cta-buttons { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#hero-title::after { content: '|'; animation: blink 0.7s infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* --- END: CSS NÂNG CẤP HERO SECTION --- */
+
+/* ... existing code ... */
+/* --- END: CSS NÂNG CẤP HERO SECTION --- */
+
+/* --- START: CSS NÂNG CẤP CHO BOOKING SECTION --- */
+.input-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 1rem; /* 16px */
+    transform: translateY(-50%);
+    color: #9ca3af; /* text-gray-400 */
+}
+
+.input-field {
+    width: 100%;
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 0.75rem 1rem 0.75rem 3rem; /* 12px 16px 12px 48px */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #f87171; /* focus:border-red-400 */
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); /* focus:ring-red-500 with opacity */
+}
+
+/* Custom scrollbar for selected items */
+#selected-items::-webkit-scrollbar {
+    width: 6px;
+}
+#selected-items::-webkit-scrollbar-track {
+    background: #f1f5f9; /* bg-slate-100 */
+    border-radius: 10px;
+}
+#selected-items::-webkit-scrollbar-thumb {
+    background: #fca5a5; /* bg-red-300 */
+    border-radius: 10px;
+}
+#selected-items::-webkit-scrollbar-thumb:hover {
+    background: #f87171; /* bg-red-400 */
+}
+
+/* Styling for date input placeholder */
+input[type="date"] {
+    position: relative;
+    color: #9ca3af;
+}
+
+input[type="date"]:focus,
+input[type="date"]:valid {
+  color: #1f2937; /* text-gray-800 */
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    color: transparent;
+    background: transparent;
+    cursor: pointer;
+}
+/* --- END: CSS NÂNG CẤP CHO BOOKING SECTION --- */
