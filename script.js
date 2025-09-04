@@ -191,6 +191,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // --- START: BỔ SUNG HÀM XỬ LÝ CLICK DANH MỤC ---
+    function handleCategoryClick(category) {
+        // 1. Cập nhật trạng thái active cho button
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === category) {
+                btn.classList.add('active');
+            }
+        });
+
+        // 2. Render lại sản phẩm theo danh mục đã chọn
+        renderProducts(category);
+    }
+    // --- END: BỔ SUNG HÀM XỬ LÝ CLICK DANH MỤC ---
+    
     function createImageErrorHandler(product) {
         let attempts = 0;
         const fallbacks = [
