@@ -379,3 +379,68 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* === KẾT THÚC: CSS HOÀN CHỈNH CHO MODAL SẢN PHẨM === */
 
+/* === BẮT ĐẦU: CSS NÂNG CẤP ĐẶC BIỆT CHO KHU VỰC "GIA TIÊN" === */
+#category-description {
+    background: linear-gradient(145deg, #fff5f5, #ffebeb);
+    border: 1px solid #fecaca;
+    box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.1);
+}
+
+.gia-tien-title {
+    background: -webkit-linear-gradient(45deg, #ef4444, #c81e1e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-card-container {
+    /* Tạo không gian 3D cho card bên trong */
+    perspective: 1000px;
+}
+
+.feature-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 179, 179, 0.5);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    /* Giữ trạng thái 3D cho các phần tử con */
+    transform-style: preserve-3d;
+    /* Hiệu ứng chuyển động mượt mà */
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform; /* Tối ưu hóa hiệu năng */
+    overflow: hidden; /* Ẩn phần glare thừa ra ngoài */
+}
+
+/* Hiệu ứng lớp con bên trong card "nổi" lên */
+.feature-card-content {
+    /* Đẩy nội dung về phía trước 50px trong không gian 3D */
+    transform: translateZ(50px);
+}
+.feature-card-icon {
+    transform: translateZ(60px);
+}
+.feature-card-title {
+    transform: translateZ(55px);
+}
+
+/* Lớp "glare" tạo hiệu ứng ánh sáng lóa di chuyển theo chuột */
+.feature-card::after {
+    content: '';
+    position: absolute;
+    top: var(--y, 50%);
+    left: var(--x, 50%);
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none; /* Cho phép click xuyên qua lớp này */
+}
+
+/* Khi hover, hiện lớp glare lên */
+.feature-card-container:hover .feature-card::after {
+    opacity: 1;
+}
+/* === KẾT THÚC: CSS NÂNG CẤP ĐẶC BIỆT CHO KHU VỰC "GIA TIÊN" === */

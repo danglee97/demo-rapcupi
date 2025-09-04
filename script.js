@@ -143,6 +143,51 @@ document.addEventListener('DOMContentLoaded', () => {
             if (productGrid) productGrid.classList.remove('hidden');
         }
     }
+    
+    // =========================================================================
+    // === BẮT ĐẦU: HÀM MỚI CHO HIỆU ỨNG 3D CỦA CARD "GIA TIÊN" ===
+    // =========================================================================
+    function initializeGiaTien3dCards() {
+        const cards = document.querySelectorAll('.feature-card-container');
+        if (cards.length === 0) return;
+
+        cards.forEach(cardContainer => {
+            const card = cardContainer.querySelector('.feature-card');
+            if (!card) return;
+
+            cardContainer.addEventListener('mousemove', (e) => {
+                const rect = cardContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const deltaX = (x - centerX) / centerX;
+                const deltaY = (y - centerY) / centerY;
+
+                const rotateY = deltaX * 10; // Độ nghiêng tối đa
+                const rotateX = -deltaY * 10;
+
+                // Áp dụng transform cho card
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+                
+                // Cập nhật vị trí của hiệu ứng ánh sáng (glare)
+                const glareX = (x / rect.width) * 100;
+                const glareY = (y / rect.height) * 100;
+                card.style.setProperty('--x', `${glareX}%`);
+                card.style.setProperty('--y', `${glareY}%`);
+            });
+
+            cardContainer.addEventListener('mouseleave', () => {
+                // Reset về trạng thái ban đầu
+                card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        });
+    }
+    // =========================================================================
+    // === KẾT THÚC: HÀM MỚI CHO HIỆU ỨNG 3D CỦA CARD "GIA TIÊN" ===
+    // =========================================================================
 
     // --- UI Rendering ---
     function renderFeaturedProjects() {
@@ -246,45 +291,67 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existingDesc) {
             existingDesc.remove();
         }
-
-        // Nếu là danh mục "Gia tiên", chèn HTML mô tả đã được khôi phục
+        
+        // ==========================================================================
+        // === BẮT ĐẦU: CẬP NHẬT LẠI TOÀN BỘ HTML CHO KHUNG "GIA TIÊN" ===
+        // ==========================================================================
         if (category === 'Gia Tiên') {
             const descriptionHTML = `
-                <div id="category-description" class="col-span-full mb-12 bg-rose-100 p-8 rounded-2xl text-center">
-                    <h3 class="font-dancing text-3xl text-red-600 mb-2">Trang Trọng Nghi Lễ Ấm Tình Gia Tiên</h3>
-                    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
+                <div id="category-description" class="col-span-full mb-12 p-8 rounded-2xl text-center">
+                    <h3 class="font-dancing text-4xl gia-tien-title mb-3 font-bold">Trang Trọng Nghi Lễ, Ấm Tình Gia Tiên</h3>
+                    <p class="text-gray-600 max-w-3xl mx-auto mb-10">
                         Nơi con cháu thể hiện lòng thành kính, nơi khởi đầu cho một hành trình hạnh phúc. Út Minh hiểu rằng buổi lễ gia tiên không chỉ là một nghi thức, mà là sợi dây kết nối thiêng liêng. Hãy để chúng tôi giúp bạn chuẩn bị một không gian trang trọng, ấm cúng và vẹn toàn nhất.
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                        <!-- Feature 1 -->
-                        <div class="bg-white/60 p-6 rounded-xl shadow-sm border border-rose-200">
-                            <div class="flex items-center mb-3">
-                                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <h4 class="font-bold text-gray-800">Không Gian Sang Trọng</h4>
-                            </div>
-                            <p class="text-sm text-gray-600">Trang trí toàn bộ 3 vách (background) tạo nên một không gian lễ ấm cúng, sang trọng và hoàn hảo cho những bức ảnh kỷ niệm.</p>
+                        <div class="feature-card-container">
+                           <div class="feature-card">
+                               <div class="feature-card-content">
+                                    <div class="flex items-center mb-3">
+                                        <div class="feature-card-icon bg-rose-100 text-green-500 rounded-full p-2 mr-3 border border-rose-200">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <h4 class="feature-card-title font-bold text-gray-800 text-lg">Không Gian Sang Trọng</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Trang trí toàn bộ 3 vách (background) tạo nên một không gian lễ ấm cúng, sang trọng và hoàn hảo cho những bức ảnh kỷ niệm.</p>
+                               </div>
+                           </div>
                         </div>
-                        <!-- Feature 2 -->
-                        <div class="bg-white/60 p-6 rounded-xl shadow-sm border border-rose-200">
-                            <div class="flex items-center mb-3">
-                                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <h4 class="font-bold text-gray-800">Bàn Thờ Gia Tiên Đầy Đủ</h4>
-                            </div>
-                            <p class="text-sm text-gray-600">Bao gồm khăn phủ tinh tế, cặp chân nến lấp lánh và lư đồng/bát hương trang nghiêm, thể hiện lòng thành kính.</p>
+                        <div class="feature-card-container">
+                           <div class="feature-card">
+                               <div class="feature-card-content">
+                                    <div class="flex items-center mb-3">
+                                        <div class="feature-card-icon bg-rose-100 text-green-500 rounded-full p-2 mr-3 border border-rose-200">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <h4 class="feature-card-title font-bold text-gray-800 text-lg">Bàn Thờ Gia Tiên Đầy Đủ</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Bao gồm khăn phủ tinh tế, cặp chân nến lấp lánh và lư đồng/bát hương trang nghiêm, thể hiện lòng thành kính.</p>
+                               </div>
+                           </div>
                         </div>
-                        <!-- Feature 3 -->
-                        <div class="bg-white/60 p-6 rounded-xl shadow-sm border border-rose-200">
-                            <div class="flex items-center mb-3">
-                                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <h4 class="font-bold text-gray-800">Bộ Bàn Hai Họ & Ghế Tiffany</h4>
-                            </div>
-                            <p class="text-sm text-gray-600">Bàn dài 3m phủ khăn trang nhã, bộ ấm trà, ly tách, nước suối và hoa để bàn (tươi/lụa) cho 12 khách mời.</p>
+                        <div class="feature-card-container">
+                           <div class="feature-card">
+                               <div class="feature-card-content">
+                                    <div class="flex items-center mb-3">
+                                        <div class="feature-card-icon bg-rose-100 text-green-500 rounded-full p-2 mr-3 border border-rose-200">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <h4 class="feature-card-title font-bold text-gray-800 text-lg">Bàn Hai Họ & Ghế Tiffany</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Bàn dài 3m phủ khăn trang nhã, bộ ấm trà, ly tách, nước suối và hoa để bàn (tươi/lụa) cho 12 khách mời.</p>
+                               </div>
+                           </div>
                         </div>
                     </div>
                 </div>
             `;
             productGrid.insertAdjacentHTML('beforebegin', descriptionHTML);
+            // Kích hoạt hiệu ứng 3D sau khi đã chèn HTML vào trang
+            initializeGiaTien3dCards();
         }
+        // ========================================================================
+        // === KẾT THÚC: CẬP NHẬT LẠI TOÀN BỘ HTML CHO KHUNG "GIA TIÊN" ===
+        // ========================================================================
 
         const filteredProducts = allProducts.filter(p => p.category === category);
         
@@ -664,7 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (lightboxNextBtn) {
             lightboxNextBtn.addEventListener('click', () => {
-                showLightboxImage(currentLightboxIndex + 1);
+                showLightboxImage(currentLightboxIndex - 1);
             });
         }
     }
@@ -682,4 +749,3 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHeaderHeight();
     });
 });
-
