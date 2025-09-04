@@ -292,8 +292,6 @@
     </section>
 
     <!-- Booking Section -->
-    <!-- ... existing code ... -->
-    <!-- Booking Section -->
     <section id="booking" class="bg-rose-100/50 py-12">
         <div class="container mx-auto px-4 sm:px-6">
             <!-- Nâng cấp: Toàn bộ section đặt trong một card lớn -->
@@ -365,10 +363,6 @@
             </div>
         </div>
     </section>
-    
-    <!-- Contact Section -->
-<!-- ... existing code ... -->
-
     
     <!-- Contact Section -->
     <section id="contact" class="bg-rose-100/50 py-12">
@@ -467,8 +461,17 @@
 
             <!-- Cột Hình ảnh (Bên trái) -->
             <div class="modal-image-column w-full md:w-3/5 flex flex-col p-4 bg-white">
-                <div class="relative flex-grow min-h-0 flex items-center justify-center">
+                <div class="relative flex-grow min-h-0 flex items-center justify-center group">
                      <img id="modal-main-img" src="" alt="Product main image" class="max-w-full max-h-full object-contain rounded-lg">
+                     
+                     <!-- MŨI TÊN CHUYỂN ẢNH - BẮT ĐẦU -->
+                     <button id="modal-prev-btn" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-all opacity-0 group-hover:opacity-100 hidden z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                     </button>
+                     <button id="modal-next-btn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-all opacity-0 group-hover:opacity-100 hidden z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                     </button>
+                     <!-- MŨI TÊN CHUYỂN ẢNH - KẾT THÚC -->
                 </div>
                  <div id="modal-thumbnail-gallery" class="flex-shrink-0 pt-3 flex space-x-2 justify-center overflow-x-auto">
                     <!-- Thumbnails will be generated here -->
@@ -521,5 +524,4 @@
 
 </body>
 </html>
-
 

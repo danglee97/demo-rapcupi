@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPrice = document.getElementById('modal-price');
     const modalAddBtn = document.getElementById('modal-add-btn');
     const expandImgBtn = document.getElementById('expand-img-btn');
+    const modalPrevBtn = document.getElementById('modal-prev-btn');
+    const modalNextBtn = document.getElementById('modal-next-btn');
 
     // Lightbox elements
     const lightbox = document.getElementById('lightbox');
@@ -40,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lightboxImages = [];
     let currentLightboxIndex = 0;
     let currentModalGallery = [];
+    let currentModalImageIndex = 0;
 
     // --- Function to dynamically set header height for scroll padding ---
     function updateHeaderHeight() {
@@ -380,25 +383,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    function showModalImage(index) {
+        // Loop around if index is out of bounds
+        if (index < 0) {
+            index = currentModalGallery.length - 1;
+        } else if (index >= currentModalGallery.length) {
+            index = 0;
+        }
+    
+        currentModalImageIndex = index;
+    
+        // Update main image source
+        modalMainImg.src = currentModalGallery[index];
+        modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
+    
+        // Update active state on thumbnails
+        const thumbnails = document.querySelectorAll('#modal-thumbnail-gallery .thumbnail-img');
+        thumbnails.forEach((thumb, i) => {
+            thumb.classList.toggle('active', i === index);
+            // Ensure the active thumbnail is visible
+            if (i === index) {
+                thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        });
+    }
+
     function openModal(product) {
         if (!modal || !modalContent) return;
-        currentModalGallery = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image_url];
+        
+        // Consolidate all images into one gallery, with the main image first, and remove duplicates.
+        const galleryImages = product.gallery ? [...product.gallery] : [];
+        currentModalGallery = [product.image_url, ...galleryImages].filter(Boolean);
+        currentModalGallery = [...new Set(currentModalGallery)];
+
+        // Clear previous thumbnails
         modalThumbnailGallery.innerHTML = '';
-        modalMainImg.src = currentModalGallery[0];
-        modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
+        
+        // Generate new thumbnails
         currentModalGallery.forEach((imageUrl, index) => {
             const thumb = document.createElement('img');
             thumb.src = imageUrl;
             thumb.alt = `${product.name} thumbnail ${index + 1}`;
             thumb.classList.add('thumbnail-img');
-            if (index === 0) thumb.classList.add('active');
+            thumb.onerror = () => { thumb.style.display = 'none'; }; // Hide broken thumbnails
             thumb.addEventListener('click', () => {
-                modalMainImg.src = imageUrl;
-                document.querySelectorAll('#modal-thumbnail-gallery .thumbnail-img').forEach(t => t.classList.remove('active'));
-                thumb.classList.add('active');
+                showModalImage(index);
             });
             modalThumbnailGallery.appendChild(thumb);
         });
+
+        // Show or hide navigation arrows based on the number of images
+        if (currentModalGallery.length > 1) {
+            modalPrevBtn.classList.remove('hidden');
+            modalNextBtn.classList.remove('hidden');
+        } else {
+            modalPrevBtn.classList.add('hidden');
+            modalNextBtn.classList.add('hidden');
+        }
+
+        // Set the initial image using the new function
+        showModalImage(0); 
+
         modalName.textContent = product.name;
         modalDesc.textContent = product.description;
         modalPrice.textContent = `${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ`;
@@ -627,6 +672,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    if (modalPrevBtn) {
+        modalPrevBtn.addEventListener('click', () => {
+            showModalImage(currentModalImageIndex - 1);
+        });
+    }
+
+    if (modalNextBtn) {
+        modalNextBtn.addEventListener('click', () => {
+            showModalImage(currentModalImageIndex + 1);
+        });
+    }
+
     const backToTopButton = document.getElementById('back-to-top');
     if (backToTopButton) {
         window.addEventListener('scroll', () => {
@@ -641,3 +699,4 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHeaderHeight();
     });
 });
+
