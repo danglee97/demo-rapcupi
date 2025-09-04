@@ -459,29 +459,30 @@
         </div>
     </footer>
     
-    <!-- Product Detail Modal -->
+<!-- Product Detail Modal -->
     <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-75 z-[60] hidden items-center justify-center p-4">
-        <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row relative transform scale-95 transition-transform duration-300">
+        <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden transform scale-95 transition-transform duration-300">
             <!-- Close button -->
-            <button id="modal-close-btn" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-8 w-8 flex items-center justify-center shadow-lg z-10 text-xl">&times;</button>
+            <button id="modal-close-btn" class="absolute top-2 right-2 bg-red-500 text-white rounded-full h-8 w-8 flex items-center justify-center shadow-lg z-20 text-xl">&times;</button>
 
-            <!-- Image Gallery Section -->
-            <div class="w-full md:w-3/5 flex flex-col p-4 relative group">
-                 <img id="modal-main-img" src="" alt="Product main image" class="w-full h-auto flex-grow object-contain rounded-lg mb-2">
-                 <!-- Expand Button -->
-                 <button id="expand-img-btn" class="absolute top-6 right-6 bg-black/50 text-white rounded-full h-10 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Phóng to ảnh">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4"></path></svg>
-                 </button>
-                 <div id="modal-thumbnail-gallery" class="flex space-x-2 justify-center p-2 overflow-x-auto">
+            <!-- Cột Hình ảnh (Bên trái) -->
+            <div class="modal-image-column w-full md:w-3/5 flex flex-col p-4 bg-white">
+                <div class="relative flex-grow min-h-0 flex items-center justify-center">
+                     <img id="modal-main-img" src="" alt="Product main image" class="max-w-full max-h-full object-contain rounded-lg">
+                </div>
+                 <div id="modal-thumbnail-gallery" class="flex-shrink-0 pt-3 flex space-x-2 justify-center overflow-x-auto">
                     <!-- Thumbnails will be generated here -->
                  </div>
+                 <button id="expand-img-btn" class="absolute top-3 left-3 bg-black/40 text-white rounded-full h-9 w-9 flex items-center justify-center hover:bg-black/60 transition-opacity" title="Phóng to ảnh">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4"></path></svg>
+                 </button>
             </div>
 
-            <!-- Details Section -->
-            <div class="w-full md:w-2/5 p-6 flex flex-col flex-grow overflow-y-auto bg-gray-50 rounded-r-lg">
+            <!-- Cột Chi tiết sản phẩm (Bên phải) -->
+            <div class="modal-details-column w-full md:w-2/5 p-6 flex flex-col bg-gray-50 overflow-y-auto">
                 <h3 id="modal-name" class="text-3xl font-bold font-dancing text-gray-800"></h3>
-                <p id="modal-desc" class="text-gray-600 mt-2 flex-grow"></p>
-                <div class="mt-4 flex justify-between items-center">
+                <div id="modal-desc" class="text-gray-600 mt-4 flex-grow prose"></div>
+                <div class="mt-auto pt-4 border-t flex justify-between items-center">
                     <p id="modal-price" class="text-2xl font-extrabold text-red-500"></p>
                     <button id="modal-add-btn" class="bg-red-500 text-white rounded-full px-6 py-2 hover:bg-red-600 transition-colors font-semibold" data-id="">
                         Thêm vào giỏ
@@ -490,7 +491,6 @@
             </div>
         </div>
     </div>
-
     <!-- Lightbox/Fullscreen Image Overlay -->
     <div id="lightbox" class="fixed inset-0 bg-black/80 z-[70] hidden items-center justify-center p-4">
         <button id="lightbox-close-btn" class="absolute top-4 right-4 text-white text-4xl z-20">&times;</button>

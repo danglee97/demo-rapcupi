@@ -235,6 +235,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProducts(category) {
         if (!productGrid) return;
+        
+        // --- START: THÊM MÔ TẢ CHO MỤC "GIA TIÊN" ---
+        // Xóa mô tả cũ nếu có
+        const existingDesc = document.getElementById('category-description');
+        if (existingDesc) {
+            existingDesc.remove();
+        }
+
+        // Nếu là danh mục "Gia tiên", chèn HTML mô tả
+        if (category === 'Gia Tiên') {
+            const descriptionHTML = `
+                <div id="category-description" class="col-span-full mb-8 bg-rose-100 p-6 rounded-lg border-l-4 border-red-400 text-gray-700">
+                    <p class="mb-4">Một gia tiên trọn gói thường bao gồm đầy đủ các hạng mục cần thiết để chuẩn bị cho nghi lễ gia tiên trong ngày cưới. Tuỳ theo ngân sách và phong cách, các dịch vụ sẽ có sự linh hoạt bao gồm:</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Không gian sẽ bao gồm full ba background xung quanh.</li>
+                        <li>Bàn thờ gia tiên: khăn phủ, chân nến, bát hương.</li>
+                        <li>Một bộ bàn dài 3m gồm 12 ghế bao gồm khăn phủ, ly, tách, nước suối, hoa để bàn (hoa tươi/hoa lụa).</li>
+                    </ol>
+                </div>
+            `;
+            productGrid.insertAdjacentHTML('beforebegin', descriptionHTML);
+        }
+        // --- END: THÊM MÔ TẢ CHO MỤC "GIA TIÊN" ---
+
         const filteredProducts = allProducts.filter(p => p.category === category);
         
         if (filteredProducts.length === 0) {
@@ -591,4 +615,3 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHeaderHeight();
     });
 });
-

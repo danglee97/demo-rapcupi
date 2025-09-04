@@ -62,25 +62,6 @@ h1, h2, h3, .font-dancing {
     transition: opacity 1s ease-in-out;
 }
 
-/* Nâng cấp: Xóa style cho slider buttons và grabbing cursor */
-
-/* Styles for Product Modal Gallery */
-.thumbnail-img {
-    width: 64px; /* 16 on tailwind scale */
-    height: 64px;
-    object-fit: cover;
-    cursor: pointer;
-    border: 2px solid transparent;
-    border-radius: 0.375rem; /* rounded-md */
-    transition: border-color 0.2s ease-in-out;
-}
-.thumbnail-img:hover {
-    border-color: #fca5a5; /* red-300 */
-}
-.thumbnail-img.active {
-    border-color: #ef4444; /* red-500 */
-}
-
 /* Fix for sticky header covering section titles */
 main, section {
     scroll-margin-top: var(--header-height, 5.5rem);
@@ -265,9 +246,6 @@ main, section {
 
 /* --- END: CSS NÂNG CẤP HERO SECTION --- */
 
-/* ... existing code ... */
-/* --- END: CSS NÂNG CẤP HERO SECTION --- */
-
 /* --- START: CSS NÂNG CẤP CHO BOOKING SECTION --- */
 .input-group {
     position: relative;
@@ -336,3 +314,58 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
 /* --- END: CSS NÂNG CẤP CHO BOOKING SECTION --- */
+
+
+/* === BẮT ĐẦU: CSS HOÀN CHỈNH CHO MODAL SẢN PHẨM === */
+
+/* Cột hình ảnh (trái) */
+.modal-image-column {
+    position: relative;
+}
+/* Đảm bảo có chiều cao tối thiểu trên mobile để ảnh không bị bóp méo */
+@media (max-width: 767px) {
+    .modal-image-column {
+        height: 60vh;
+    }
+    .modal-details-column {
+        height: 40vh;
+    }
+}
+
+/* Cột chi tiết (phải) */
+#modal-desc {
+    line-height: 1.6;
+}
+
+/* Gallery ảnh thumbnail */
+#modal-thumbnail-gallery {
+    scrollbar-width: thin;
+    scrollbar-color: #fca5a5 #f3f4f6;
+}
+#modal-thumbnail-gallery::-webkit-scrollbar {
+    height: 6px;
+}
+#modal-thumbnail-gallery::-webkit-scrollbar-thumb {
+    background-color: #fca5a5;
+    border-radius: 3px;
+}
+
+.thumbnail-img {
+    width: 64px !important;
+    height: 64px !important;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+.thumbnail-img:hover {
+    border-color: #f87171;
+}
+.thumbnail-img.active {
+    border-color: #ef4444;
+    transform: scale(1.1);
+}
+
+/* === KẾT THÚC: CSS HOÀN CHỈNH CHO MODAL SẢN PHẨM === */
+
