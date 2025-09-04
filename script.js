@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UI Elements ---
     const productGrid = document.getElementById('product-grid');
     const loader = document.getElementById('loader');
-    const sliderContainer = document.getElementById('slider-container');
     const categoryFilters = document.getElementById('category-filters');
     const selectedItemsDiv = document.getElementById('selected-items');
     const totalPriceEl = document.getElementById('total-price');
@@ -14,8 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
     const heroImage = document.getElementById('hero-image');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
     const header = document.querySelector('header');
 
     // Modal elements
@@ -40,10 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let allAvailableImages = []; // Kho chứa tất cả ảnh hợp lệ để làm ảnh dự phòng
     let selectedProducts = {}; 
     let heroSlideshowInterval = null;
-    let productsPerCategory = {};
-    let currentCategory = '';
-    let currentIndex = 0;
-    let itemsPerPage = 4;
 
     // --- Function to dynamically set header height for scroll padding ---
     function updateHeaderHeight() {
@@ -97,42 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
         heroSlideshowInterval = setInterval(changeImage, 5000);
     }
 
-    // --- Slider Functions ---
-    function updateItemsPerPage() {
-        if (window.innerWidth < 640) itemsPerPage = 1;
-        else if (window.innerWidth < 1024) itemsPerPage = 2;
-        else if (window.innerWidth < 1280) itemsPerPage = 3;
-        else itemsPerPage = 4;
-    }
-
-    function updateSliderButtons() {
-        if (!prevBtn || !nextBtn) return;
-        const currentProducts = productsPerCategory[currentCategory] || [];
-        
-        const showButtons = currentProducts.length > itemsPerPage;
-        prevBtn.classList.toggle('hidden', !showButtons || currentIndex === 0);
-        nextBtn.classList.toggle('hidden', !showButtons || currentIndex >= currentProducts.length - itemsPerPage);
-    }
-
-    function moveSlider() {
-        if (!productGrid) return;
-        const card = productGrid.querySelector('.product-card');
-        if (!card) return;
-
-        const gap = parseFloat(getComputedStyle(productGrid).gap) || 32;
-        const cardWidth = card.offsetWidth;
-        const totalWidth = cardWidth + gap;
-
-        productGrid.style.transform = `translateX(-${currentIndex * totalWidth}px)`;
-        updateSliderButtons();
-    }
-
+    // Nâng cấp: Xóa các hàm liên quan đến slider
 
     // --- Data Fetching ---
     async function fetchProducts() {
         try {
             loader.style.display = 'flex';
-            sliderContainer.classList.add('hidden');
+            if (productGrid) productGrid.classList.add('hidden');
             
             const response = await fetch(`${SCRIPT_URL}?action=getProducts`);
             if (!response.ok) throw new Error('Network response was not ok.');
@@ -150,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 startHeroSlideshow([...new Set(slideshowImages)]);
             }
             
-            renderFeaturedProjects(); // Nâng cấp: Gọi hàm render dự án nổi bật
+            renderFeaturedProjects();
             renderCategories();
             const firstCategory = [...new Set(allProducts.map(p => p.category))][0];
             if (firstCategory) {
@@ -164,37 +128,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if(productGrid) productGrid.innerHTML = `<p class="text-center text-red-500 col-span-full">Đã xảy ra lỗi khi tải sản phẩm. Vui lòng thử lại.</p>`;
         } finally {
             loader.style.display = 'none';
-            sliderContainer.classList.remove('hidden');
-            // Sau khi tải xong sản phẩm, khởi tạo hiệu ứng cuộn
-            initializeScrollReveal();
+            if (productGrid) productGrid.classList.remove('hidden');
         }
     }
 
     // --- UI Rendering ---
-
-    // Nâng cấp: Hàm mới để render mục "Dự án nổi bật"
     function renderFeaturedProjects() {
         const grid = document.getElementById('featured-projects-grid');
         if (!grid) return;
 
-        // 1. Lấy tất cả ảnh từ gallery của sản phẩm
         const allGalleryImages = allProducts.flatMap(p => p.gallery || []).filter(Boolean);
         if (allGalleryImages.length === 0) {
             grid.innerHTML = '<p class="text-center text-gray-500 col-span-full">Chưa có dự án nào để hiển thị.</p>';
             return;
         }
 
-        // 2. Lọc ảnh trùng lặp và xáo trộn ngẫu nhiên
         const uniqueImages = [...new Set(allGalleryImages)];
         for (let i = uniqueImages.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [uniqueImages[i], uniqueImages[j]] = [uniqueImages[j], uniqueImages[i]];
         }
 
-        // 3. Lấy 6 ảnh đầu tiên để hiển thị
         const imagesToShow = uniqueImages.slice(0, 6);
 
-        // 4. Tạo HTML và chèn vào grid
         grid.innerHTML = imagesToShow.map((imgUrl, index) => `
             <div class="group overflow-hidden rounded-lg shadow-lg reveal-on-scroll" style="transition-delay: ${index * 100}ms;">
                 <img src="${imgUrl}" alt="Dự án nổi bật ${index + 1}" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null;this.src='https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi';">
@@ -220,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function createImageErrorHandler(product) {
         let attempts = 0;
-        
         const fallbacks = [
             product.gallery && product.gallery[0],
             () => (allAvailableImages.length > 0 
@@ -233,12 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgElement = event.target;
             if (attempts < fallbacks.length) {
                 let nextSrc = fallbacks[attempts];
-                if (typeof nextSrc === 'function') {
-                    nextSrc = nextSrc();
-                }
-                if(nextSrc) {
-                    imgElement.src = nextSrc;
-                }
+                if (typeof nextSrc === 'function') nextSrc = nextSrc();
+                if(nextSrc) imgElement.src = nextSrc;
                 attempts++;
             } else {
                 imgElement.removeEventListener('error', handleError);
@@ -249,21 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProducts(category) {
         if (!productGrid) return;
         const filteredProducts = allProducts.filter(p => p.category === category);
-        productsPerCategory[category] = filteredProducts;
-        currentCategory = category;
-        currentIndex = 0;
-
+        
         if (filteredProducts.length === 0) {
-            productGrid.innerHTML = `<p class="w-full text-center text-gray-500">Không có sản phẩm nào trong danh mục này.</p>`;
-            productGrid.style.transform = 'translateX(0px)';
-            updateSliderButtons();
+            productGrid.innerHTML = `<p class="w-full text-center text-gray-500 col-span-full">Không có sản phẩm nào trong danh mục này.</p>`;
             return;
         }
 
         productGrid.innerHTML = filteredProducts.map((product, index) => {
             const imageId = `product-image-${category.replace(/\s/g, '-')}-${index}`;
+            // Nâng cấp: Thêm class reveal-on-scroll và delay để tạo hiệu ứng nối tiếp
             return `
-            <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col reveal-on-scroll" style="transition-delay: ${index * 75}ms;">
                 <div class="product-image-container h-48 overflow-hidden">
                     <img id="${imageId}" src="${product.image_url || ''}" alt="${product.name}" class="product-image w-full h-full object-cover" data-id="${product.id}">
                 </div>
@@ -285,21 +232,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgElement = document.getElementById(imageId);
             if (imgElement) {
                 imgElement.addEventListener('error', createImageErrorHandler(product));
-                if (!imgElement.getAttribute('src')) {
-                    imgElement.dispatchEvent(new Event('error'));
-                }
+                if (!imgElement.getAttribute('src')) imgElement.dispatchEvent(new Event('error'));
             }
         });
         
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleAddToCart(btn.dataset.id, e); // NÂNG CẤP: Truyền sự kiện (event) vào hàm
+                handleAddToCart(btn.dataset.id, e);
             });
         });
 
-        updateItemsPerPage();
-        moveSlider();
+        // Nâng cấp: Gọi hàm hiệu ứng cuộn sau mỗi lần render
+        initializeScrollReveal();
     }
     
     function renderSelectedItems() {
@@ -415,20 +360,15 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProducts(category);
     }
     
-    // --- NÂNG CẤP: Bắt đầu ---
-    // Hàm trợ giúp tạo hiệu ứng "bay"
     function flyToCart(sourceElement) {
         const cartEl = document.getElementById('selected-items');
         if (!sourceElement || !cartEl) return;
         
         const imgRect = sourceElement.getBoundingClientRect();
-        const cartRect = cartEl.getBoundingClientRect();
-    
         const flyingImage = document.createElement('img');
         flyingImage.src = sourceElement.src;
         flyingImage.classList.add('fly-to-cart-image');
     
-        // Đặt vị trí ban đầu
         flyingImage.style.left = `${imgRect.left}px`;
         flyingImage.style.top = `${imgRect.top}px`;
         flyingImage.style.width = `${imgRect.width}px`;
@@ -436,8 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
         document.body.appendChild(flyingImage);
     
-        // Bắt đầu animation
         requestAnimationFrame(() => {
+            const cartRect = cartEl.getBoundingClientRect();
             flyingImage.style.left = `${cartRect.left + cartRect.width / 2}px`;
             flyingImage.style.top = `${cartRect.top + cartRect.height / 2}px`;
             flyingImage.style.width = '0px';
@@ -446,40 +386,30 @@ document.addEventListener('DOMContentLoaded', () => {
             flyingImage.style.transform = 'scale(0.2) rotate(180deg)';
         });
     
-        // Xóa element sau khi animation kết thúc
-        flyingImage.addEventListener('transitionend', () => {
-            flyingImage.remove();
-        }, { once: true });
+        flyingImage.addEventListener('transitionend', () => flyingImage.remove(), { once: true });
     }
 
-    // Hàm handleAddToCart được cập nhật
     function handleAddToCart(productId, event) {
         const product = allProducts.find(p => p.id == productId);
         if (!product) return;
 
-        // Kích hoạt hiệu ứng nếu có `event` (tức là được click từ card sản phẩm)
         if (event && event.target) {
             const productCard = event.target.closest('.product-card');
             if (productCard) {
                 const productImage = productCard.querySelector('.product-image');
-                if (productImage) {
-                    flyToCart(productImage);
-                }
+                if (productImage) flyToCart(productImage);
             }
         }
     
-        // Logic thêm sản phẩm vào giỏ hàng
         if (selectedProducts[productId]) {
             selectedProducts[productId].quantity++;
         } else {
             selectedProducts[productId] = { ...product, quantity: 1 };
         }
         
-        // Cập nhật giỏ hàng sau một khoảng trễ nhỏ
         setTimeout(() => renderSelectedItems(), 100); 
         showToast(`Đã thêm "${product.name}"!`);
     }
-    // --- NÂNG CẤP: Kết thúc ---
     
     function handleChangeQuantity(productId, change) {
         if (!selectedProducts[productId]) return;
@@ -508,19 +438,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateParts = rawDate.split('-');
         const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : '';
         const productDetails = Object.values(selectedProducts);
-        const tenSanPham = productDetails.map(p => p.name).join('\n');
-        const soLuong = productDetails.map(p => p.quantity).join('\n');
-        const donGia = productDetails.map(p => new Intl.NumberFormat('vi-VN').format(p.price) + ' VNĐ').join('\n');
         const customerData = {
             thoiGianGui: new Date().toLocaleString("vi-VN"),
             hoTen: formData.get('name'), 
             soDienThoai: formData.get('phone'), 
             ngayToChuc: formattedDate,
             diaChi: formData.get('address'), 
-            tenSanPham, 
-            soLuong, 
-            donGia,
-            tongCong: Object.values(selectedProducts).reduce((sum, item) => sum + item.price * item.quantity, 0)
+            tenSanPham: productDetails.map(p => p.name).join('\n'), 
+            soLuong: productDetails.map(p => p.quantity).join('\n'), 
+            donGia: productDetails.map(p => new Intl.NumberFormat('vi-VN').format(p.price) + ' VNĐ').join('\n'),
+            tongCong: productDetails.reduce((sum, item) => sum + item.price * item.quantity, 0)
         };
         
         try {
@@ -542,7 +469,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- NÂNG CẤP: Hàm cho hiệu ứng "Hiện ra khi cuộn" ---
     function initializeScrollReveal() {
         const revealElements = document.querySelectorAll('.reveal-on-scroll');
         if (revealElements.length === 0) return;
@@ -550,19 +476,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const revealObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    // Lấy độ trễ từ inline style (nếu có)
-                    const delay = parseInt(entry.target.style.transitionDelay) || 0;
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, delay);
-                    // Ngừng quan sát phần tử sau khi đã hiển thị
+                    entry.target.classList.add('visible');
                     observer.unobserve(entry.target);
                 }
             });
-        }, {
-            root: null, // Quan sát so với viewport
-            threshold: 0.1 // Kích hoạt khi 10% phần tử hiện ra
-        });
+        }, { threshold: 0.1 });
     
         revealElements.forEach(el => {
             revealObserver.observe(el);
@@ -573,18 +491,15 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeaderHeight();
     startTypingEffect(document.getElementById('hero-title'), 150);
     fetchProducts();
-    // GỌI HÀM HIỆU ỨNG CUỘN Ở ĐÂY LÀ CHƯA ĐÚNG VÌ CÁC MỤC CHƯA TẢI XONG
-    // SẼ DI CHUYỂN VÀO `finally` CỦA `fetchProducts`
+    initializeScrollReveal(); // Chạy lần đầu cho các mục tĩnh
 
     if (bookingForm) {
         bookingForm.addEventListener('submit', handleFormSubmit);
     }
 
     if (productGrid) {
-        const handleProductClick = (e) => {
-            if (e.target.closest('.add-to-cart-btn')) {
-                return;
-            }
+        productGrid.addEventListener('click', (e) => {
+            if (e.target.closest('.add-to-cart-btn')) return;
 
             const card = e.target.closest('.product-card');
             if (card) {
@@ -595,12 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
                      if (product) openModal(product);
                 }
             }
-        };
-
-        productGrid.addEventListener('mouseup', (e) => {
-            if (!productGrid.hasDragged) {
-                handleProductClick(e);
-            }
         });
     }
 
@@ -609,11 +518,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
         });
-        // NÂNG CẤP: Listener cho nút thêm trong modal
         modalAddBtn.addEventListener('click', () => {
             const sourceImg = document.getElementById('modal-main-img');
-            flyToCart(sourceImg); // Kích hoạt hiệu ứng bay từ ảnh trong modal
-            handleAddToCart(modalAddBtn.dataset.id, null); // Gọi hàm gốc không có event
+            flyToCart(sourceImg);
+            handleAddToCart(modalAddBtn.dataset.id, null);
             closeModal();
         });
     }
@@ -631,107 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    if (prevBtn && nextBtn) {
-        prevBtn.addEventListener('click', () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                moveSlider();
-            }
-        });
-
-        nextBtn.addEventListener('click', () => {
-            const currentProducts = productsPerCategory[currentCategory] || [];
-            if (currentIndex < currentProducts.length - itemsPerPage) {
-                currentIndex++;
-                moveSlider();
-            }
-        });
-    }
-
-    if (sliderContainer) {
-        sliderContainer.addEventListener('wheel', (e) => {
-            if (e.deltaY === 0) return;
-            e.preventDefault();
-
-            const currentProducts = productsPerCategory[currentCategory] || [];
-            const maxIndex = Math.max(0, currentProducts.length - itemsPerPage);
-
-            if (e.deltaY > 0) {
-                if (currentIndex < maxIndex) currentIndex++;
-            } else {
-                if (currentIndex > 0) currentIndex--;
-            }
-            moveSlider();
-        }, { passive: false });
-    }
-
-    if (productGrid) {
-        let isDown = false;
-        let startX;
-        let startTransformX;
-        productGrid.hasDragged = false; 
-
-        const getTransformX = () => new DOMMatrixReadOnly(window.getComputedStyle(productGrid).transform).m41;
-
-        const startDragging = (e) => {
-            isDown = true;
-            productGrid.hasDragged = false;
-            productGrid.classList.add('grabbing');
-            
-            startX = (e.pageX || e.touches[0].pageX) - productGrid.offsetLeft;
-            startTransformX = getTransformX();
-            productGrid.style.transition = 'none';
-        };
-
-        const stopDragging = () => {
-            if (!isDown) return;
-            isDown = false;
-            productGrid.classList.remove('grabbing');
-            productGrid.style.transition = 'transform 0.5s ease-in-out';
-            
-            const card = productGrid.querySelector('.product-card');
-            if (!card) return;
-
-            const gap = parseFloat(getComputedStyle(productGrid).gap) || 32;
-            const totalWidth = card.offsetWidth + gap;
-            
-            const currentTransformX = getTransformX();
-            const currentProducts = productsPerCategory[currentCategory] || [];
-            const maxIndex = Math.max(0, currentProducts.length - itemsPerPage);
-
-            let newIndex = Math.round(-currentTransformX / totalWidth);
-            newIndex = Math.max(0, Math.min(newIndex, maxIndex));
-            
-            currentIndex = newIndex;
-            moveSlider();
-        };
-
-        const onDrag = (e) => {
-            if (!isDown) return;
-            if (e.type === 'touchmove') e.preventDefault();
-            
-            const x = (e.pageX || e.touches[0].pageX) - productGrid.offsetLeft;
-            const walk = x - startX;
-            
-            if (Math.abs(walk) > 10) {
-                productGrid.hasDragged = true;
-            }
-
-            productGrid.style.transform = `translateX(${startTransformX + walk}px)`;
-        };
-
-        productGrid.addEventListener('mousedown', startDragging);
-        productGrid.addEventListener('mousemove', onDrag);
-        productGrid.addEventListener('mouseup', stopDragging);
-        productGrid.addEventListener('mouseleave', stopDragging);
-        
-        productGrid.addEventListener('touchstart', startDragging, { passive: true });
-        productGrid.addEventListener('touchmove', onDrag, { passive: false });
-        productGrid.addEventListener('touchend', stopDragging);
-    }
-    
     const backToTopButton = document.getElementById('back-to-top');
-
     if (backToTopButton) {
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) {
@@ -742,10 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     window.addEventListener('resize', () => {
-        updateItemsPerPage();
-        moveSlider();
         updateHeaderHeight();
     });
 });

@@ -122,24 +122,13 @@
             <!-- Categories will be loaded here -->
         </div>
 
-        <!-- Product Slider -->
+        <!-- Product Grid -->
         <div id="loader" class="flex justify-center items-center h-64 overflow-hidden">
              <img src="logo.png" alt="Đang tải..." class="h-16 loading-logo" />
         </div>
-        <div id="slider-container" class="relative hidden">
-            <div id="product-grid-container" class="overflow-x-hidden w-full cursor-grab">
-                <div id="product-grid" class="flex gap-8 transition-transform duration-500 ease-in-out">
-                    <!-- Products will be loaded here -->
-                </div>
-            </div>
-            <!-- Prev Button -->
-            <button id="prev-btn" class="slider-btn absolute top-1/2 -left-4 transform -translate-y-1/2 z-10 hidden">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-            <!-- Next Button -->
-            <button id="next-btn" class="slider-btn absolute top-1/2 -right-4 transform -translate-y-1/2 z-10 hidden">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
+        <!-- Nâng cấp: Chuyển sang layout Grid, bỏ slider -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <!-- Products will be loaded here by script.js -->
         </div>
     </main>
 
@@ -226,7 +215,7 @@
                 <!-- Testimonial 1 -->
                 <div class="bg-rose-50 p-6 rounded-lg shadow-md reveal-on-scroll">
                     <div class="flex items-center mb-4">
-                        <img class="w-14 h-14 rounded-full mr-4 object-cover" src="logo.png" alt="Avatar khách hàng">
+                        <img class="w-14 h-14 rounded-full mr-4 object-contain bg-white p-1 shadow-sm" src="logo.png" alt="ÚT MINH Logo">
                         <div>
                             <p class="font-bold">Anh Minh & Chị An</p>
                             <p class="text-sm text-gray-500">Cặp đôi 12/08/2024</p>
@@ -237,7 +226,7 @@
                 <!-- Testimonial 2 -->
                 <div class="bg-rose-50 p-6 rounded-lg shadow-md reveal-on-scroll" style="transition-delay: 150ms;">
                     <div class="flex items-center mb-4">
-                        <img class="w-14 h-14 rounded-full mr-4 object-cover" src="logo.png" alt="Avatar khách hàng">
+                        <img class="w-14 h-14 rounded-full mr-4 object-contain bg-white p-1 shadow-sm" src="logo.png" alt="ÚT MINH Logo">
                         <div>
                             <p class="font-bold">Chị Thu Thảo</p>
                             <p class="text-sm text-gray-500">Khách hàng 25/07/2024</p>
@@ -248,7 +237,7 @@
                 <!-- Testimonial 3 -->
                 <div class="bg-rose-50 p-6 rounded-lg shadow-md reveal-on-scroll" style="transition-delay: 300ms;">
                     <div class="flex items-center mb-4">
-                        <img class="w-14 h-14 rounded-full mr-4 object-cover" src="logo.png" alt="Avatar khách hàng">
+                        <img class="w-14 h-14 rounded-full mr-4 object-contain bg-white p-1 shadow-sm" src="logo.png" alt="ÚT MINH Logo">
                         <div>
                             <p class="font-bold">Anh Quốc Bảo</p>
                             <p class="text-sm text-gray-500">Khách hàng 02/06/2024</p>

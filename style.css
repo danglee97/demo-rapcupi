@@ -7,32 +7,16 @@ body {
 h1, h2, h3, .font-dancing {
     font-family: 'Dancing Script', cursive;
 }
+
+/* Nâng cấp: Bỏ style chiều rộng của card, để grid quản lý */
 .product-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    flex-shrink: 0;
-    /* Responsive widths for the slider items */
-    width: calc(100% / 1.25); /* Default for smallest screens */
-}
-@media (min-width: 640px) {
-    .product-card {
-        width: calc((100% / 2) - (2rem / 2)); /* sm: 2 items, gap-8 (2rem) */
-    }
-}
-@media (min-width: 1024px) {
-    .product-card {
-        width: calc((100% / 3) - (2rem * 2 / 3)); /* lg: 3 items */
-    }
-}
-@media (min-width: 1280px) {
-    .product-card {
-        width: calc((100% / 4) - (2rem * 3 / 4)); /* xl: 4 items */
-    }
 }
 
-
+/* Nâng cấp: Hiệu ứng hover hiện đại, đổ bóng theo màu thương hiệu */
 .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.1), 0 8px 10px -6px rgba(239, 68, 68, 0.1);
 }
 
 /* Hover effect for product image only on larger screens */
@@ -78,34 +62,7 @@ h1, h2, h3, .font-dancing {
     transition: opacity 1s ease-in-out;
 }
 
-/* Styles for Product Slider */
-.slider-btn {
-    background-color: #ef4444; /* red-500 */
-    color: white;
-    border-radius: 9999px;
-    padding: 0.75rem; /* Tăng kích thước nút */
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.slider-btn:hover {
-    background-color: #dc2626; /* red-600 */
-    transform: scale(1.1) translateY(-50%);
-}
-.slider-btn svg {
-    color: white; 
-}
-/* Styles for grabbing cursor */
-.grabbing {
-    cursor: grabbing;
-}
-#product-grid.dragging .product-card {
-    pointer-events: none;
-}
-
+/* Nâng cấp: Xóa style cho slider buttons và grabbing cursor */
 
 /* Styles for Product Modal Gallery */
 .thumbnail-img {
@@ -174,30 +131,24 @@ main, section {
 }
 /* END: CSS cho hiệu ứng gõ chữ */
 
-/* =================================================================== */
-/* ============= CSS CHO CÁC SECTION VÀ HIỆU ỨNG MỚI ================ */
-/* =================================================================== */
+/* Nâng cấp: CSS cho hiệu ứng "bay vào giỏ hàng" */
+.fly-to-cart-image {
+    position: fixed;
+    z-index: 100;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: all 0.7s ease-in-out;
+}
 
-/* START: CSS cho hiệu ứng "Hiện ra khi cuộn" */
+/* Nâng cấp: CSS cho hiệu ứng "hiện ra khi cuộn" */
 .reveal-on-scroll {
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    /* transition-delay được đặt inline trong HTML để tùy chỉnh cho từng element */
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
+
 .reveal-on-scroll.visible {
     opacity: 1;
     transform: translateY(0);
 }
-/* END: CSS cho hiệu ứng "Hiện ra khi cuộn" */
 
-/* START: CSS cho hiệu ứng "Bay vào giỏ hàng" */
-.fly-to-cart-image {
-    position: fixed;
-    z-index: 100;
-    border-radius: 0.5rem; /* rounded-lg */
-    transition: all 1s cubic-bezier(0.5, 0, 1, 0.5); /* Easing để tạo cảm giác mượt mà */
-    object-fit: cover;
-    pointer-events: none; /* Đảm bảo không bắt được sự kiện click */
-}
-/* END: CSS cho hiệu ứng "Bay vào giỏ hàng" */
