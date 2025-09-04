@@ -152,3 +152,25 @@ main, section {
     transform: translateY(0);
 }
 
+/* Nâng cấp: CSS cho layout so le của Dự án nổi bật */
+.project-item {
+    transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+    cursor: pointer; /* Thêm con trỏ để báo hiệu có thể click */
+}
+
+/* Áp dụng hiệu ứng so le và xoay nhẹ cho màn hình lớn (lg trở lên) */
+@media (min-width: 1024px) {
+    #featured-projects-grid .project-item.visible:nth-child(odd) {
+        transform: translateY(-1.5rem) rotate(-2deg);
+    }
+    #featured-projects-grid .project-item.visible:nth-child(even) {
+        transform: translateY(1.5rem) rotate(2deg);
+    }
+    #featured-projects-grid .project-item.visible:hover {
+        transform: translateY(0) rotate(0) scale(1.08);
+        z-index: 10; /* Đưa ảnh lên trên các ảnh khác khi hover */
+        /* Nâng cấp hiệu ứng đổ bóng khi hover */
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 25px rgba(239, 68, 68, 0.3);
+    }
+}
+

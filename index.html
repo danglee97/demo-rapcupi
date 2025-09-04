@@ -415,8 +415,17 @@
 
     <!-- Lightbox/Fullscreen Image Overlay -->
     <div id="lightbox" class="fixed inset-0 bg-black/80 z-[70] hidden items-center justify-center p-4">
-        <button id="lightbox-close-btn" class="absolute top-4 right-4 text-white text-4xl">&times;</button>
-        <img id="lightbox-img" src="" class="max-w-full max-h-full">
+        <button id="lightbox-close-btn" class="absolute top-4 right-4 text-white text-4xl z-20">&times;</button>
+        
+        <!-- Nâng cấp: Thêm nút chuyển ảnh -->
+        <button id="lightbox-prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 text-white p-3 bg-black/30 rounded-full hover:bg-black/60 transition-colors z-20 hidden">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button id="lightbox-next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 text-white p-3 bg-black/30 rounded-full hover:bg-black/60 transition-colors z-20 hidden">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+
+        <img id="lightbox-img" src="" class="max-w-full max-h-full transition-all duration-300">
     </div>
 
     <!-- Toast Notification -->
@@ -434,4 +443,5 @@
 
 </body>
 </html>
+
 

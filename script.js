@@ -31,12 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxCloseBtn = document.getElementById('lightbox-close-btn');
+    // Nâng cấp: Thêm nút chuyển ảnh lightbox
+    const lightboxPrevBtn = document.getElementById('lightbox-prev-btn');
+    const lightboxNextBtn = document.getElementById('lightbox-next-btn');
 
     // --- State ---
     let allProducts = [];
     let allAvailableImages = []; // Kho chứa tất cả ảnh hợp lệ để làm ảnh dự phòng
     let selectedProducts = {}; 
     let heroSlideshowInterval = null;
+    // Nâng cấp: Thêm state cho lightbox
+    let lightboxImages = [];
+    let currentLightboxIndex = 0;
+    let currentModalGallery = [];
 
     // --- Function to dynamically set header height for scroll padding ---
     function updateHeaderHeight() {
@@ -152,10 +159,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const imagesToShow = uniqueImages.slice(0, 6);
 
         grid.innerHTML = imagesToShow.map((imgUrl, index) => `
-            <div class="group overflow-hidden rounded-lg shadow-lg reveal-on-scroll" style="transition-delay: ${index * 100}ms;">
-                <img src="${imgUrl}" alt="Dự án nổi bật ${index + 1}" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null;this.src='https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi';">
+            <div class="project-item group overflow-hidden rounded-lg shadow-lg reveal-on-scroll relative" style="transition-delay: ${index * 100}ms;">
+                <img src="${imgUrl}" alt="Dự án nổi bật ${index + 1}" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110" onerror="this.parentElement.style.display='none'">
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center">
+                    <svg class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
             </div>
         `).join('');
+
+        // Nâng cấp: Thêm sự kiện click để mở Lightbox với danh sách ảnh
+        const projectImageUrls = imagesToShow;
+        grid.querySelectorAll('.project-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                openLightbox(index, projectImageUrls);
+            });
+        });
     }
 
     function renderCategories() {
@@ -193,6 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 attempts++;
             } else {
                 imgElement.removeEventListener('error', handleError);
+                // Nâng cấp: Ẩn đi thẻ sản phẩm nếu tất cả ảnh đều lỗi
+                const card = imgElement.closest('.product-card');
+                if (card) {
+                    card.style.display = 'none';
+                }
             }
         };
     }
@@ -299,6 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!modal || !modalContent) return;
     
         const galleryImages = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image_url];
+        // Nâng cấp: Lưu trữ danh sách ảnh của modal hiện tại
+        currentModalGallery = galleryImages;
+
         modalThumbnailGallery.innerHTML = '';
         modalMainImg.src = galleryImages[0];
         modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
@@ -339,11 +365,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Lightbox Functions ---
-    function openLightbox(imageUrl) {
-        if (!lightbox || !lightboxImg) return;
-        lightboxImg.src = imageUrl;
+    // Nâng cấp: Hiển thị ảnh lightbox và quản lý nút
+    function showLightboxImage(index) {
+        if (index < 0 || index >= lightboxImages.length) return;
+        currentLightboxIndex = index;
+
+        lightboxImg.classList.add('opacity-0', 'scale-95');
+
+        setTimeout(() => {
+            lightboxImg.src = lightboxImages[currentLightboxIndex];
+            lightboxImg.onload = () => {
+                lightboxImg.classList.remove('opacity-0', 'scale-95');
+            };
+        }, 200);
+
+        lightboxPrevBtn.classList.toggle('hidden', currentLightboxIndex === 0);
+        lightboxNextBtn.classList.toggle('hidden', currentLightboxIndex === lightboxImages.length - 1);
+    }
+
+    // Nâng cấp: Mở lightbox với danh sách ảnh
+    function openLightbox(target, imageArray) {
+        if (!lightbox || !lightboxImg || !imageArray || imageArray.length === 0) return;
+        lightboxImages = imageArray;
+        
+        let startIndex = 0;
+        if (typeof target === 'number') {
+            startIndex = target;
+        } else if (typeof target === 'string') {
+            startIndex = lightboxImages.indexOf(target);
+            if (startIndex === -1) {
+                lightboxImages = [target];
+                startIndex = 0;
+            }
+        }
+        
         lightbox.classList.remove('hidden');
         lightbox.classList.add('flex');
+        showLightboxImage(startIndex);
     }
 
     function closeLightbox() {
@@ -528,7 +586,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (expandImgBtn) {
         expandImgBtn.addEventListener('click', () => {
-            if (modalMainImg) openLightbox(modalMainImg.src);
+            if (modalMainImg && currentModalGallery.length > 0) {
+                openLightbox(modalMainImg.src, currentModalGallery);
+            }
         });
     }
     
@@ -537,6 +597,18 @@ document.addEventListener('DOMContentLoaded', () => {
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
         });
+
+        // Nâng cấp: Thêm sự kiện cho nút chuyển ảnh lightbox
+        if (lightboxPrevBtn) {
+            lightboxPrevBtn.addEventListener('click', () => {
+                showLightboxImage(currentLightboxIndex - 1);
+            });
+        }
+        if (lightboxNextBtn) {
+            lightboxNextBtn.addEventListener('click', () => {
+                showLightboxImage(currentLightboxIndex + 1);
+            });
+        }
     }
     
     const backToTopButton = document.getElementById('back-to-top');
