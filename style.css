@@ -30,6 +30,16 @@ h1, h2, h3, .font-dancing {
     .product-image {
         transition: transform 0.3s ease-in-out;
     }
+    .product-description {
+        /* Canh đều lề trái và phải của văn bản */
+        text-align: justify;
+
+        /* Đặt chiều cao tối thiểu để các mô tả ngắn
+           vẫn chiếm một không gian tương đối,
+           giúp layout các card đồng đều hơn.
+           (4 dòng x 1.5rem/dòng = 6rem) */
+        min-height: 6rem;
+    }
 }
 
 

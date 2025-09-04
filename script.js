@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPrevBtn = document.getElementById('modal-prev-btn');
     const modalNextBtn = document.getElementById('modal-next-btn');
 
+
     // Lightbox elements
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLightboxIndex = 0;
     let currentModalGallery = [];
     let currentModalImageIndex = 0;
+
 
     // --- Function to dynamically set header height for scroll padding ---
     function updateHeaderHeight() {
@@ -239,54 +241,50 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProducts(category) {
         if (!productGrid) return;
         
-        // --- START: CHỈNH SỬA MÔ TẢ CHO MỤC "GIA TIÊN" ---
         // Xóa mô tả cũ nếu có
         const existingDesc = document.getElementById('category-description');
         if (existingDesc) {
             existingDesc.remove();
         }
 
-        // Nếu là danh mục "Gia tiên", chèn HTML mô tả mới, hiện đại và nổi bật hơn
+        // Nếu là danh mục "Gia tiên", chèn HTML mô tả đã được khôi phục
         if (category === 'Gia Tiên') {
             const descriptionHTML = `
-                <div id="category-description" class="col-span-full mb-12 bg-gradient-to-br from-rose-50 to-red-100 p-8 rounded-xl shadow-lg border-t-4 border-red-500 text-gray-800 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 -mt-8 -mr-8 w-40 h-40 text-red-100 opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    </div>
-                    <div class="relative z-10 text-center">
-                        <h3 class="text-3xl font-bold font-dancing text-red-600 mb-4">Trang Trọng Nghi Lễ, Ấm Tình Gia Tiên</h3>
-                        <p class="mb-8 text-gray-600 max-w-3xl mx-auto">
-                            Nơi con cháu thể hiện lòng thành kính, nơi khởi đầu cho một hành trình hạnh phúc. Út Minh hiểu rằng buổi lễ gia tiên không chỉ là một nghi thức, mà là sợi dây kết nối thiêng liêng. Hãy để chúng tôi giúp bạn chuẩn bị một không gian trang trọng, ấm cúng và vẹn toàn nhất.
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                            <div class="flex items-start space-x-3 bg-white/50 p-4 rounded-lg">
-                                <svg class="w-7 h-7 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div>
-                                    <h4 class="font-bold text-gray-700">Không Gian Sang Trọng</h4>
-                                    <p class="text-sm text-gray-600">Trang trí toàn bộ 3 vách (background) tạo nên một không gian lễ ấm cúng, sang trọng và hoàn hảo cho những bức ảnh kỷ niệm.</p>
-                                </div>
+                <div id="category-description" class="col-span-full mb-12 bg-rose-100 p-8 rounded-2xl text-center">
+                    <h3 class="font-dancing text-3xl text-red-600 mb-2">Trang Trọng Nghi Lễ Ấm Tình Gia Tiên</h3>
+                    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
+                        Nơi con cháu thể hiện lòng thành kính, nơi khởi đầu cho một hành trình hạnh phúc. Út Minh hiểu rằng buổi lễ gia tiên không chỉ là một nghi thức, mà là sợi dây kết nối thiêng liêng. Hãy để chúng tôi giúp bạn chuẩn bị một không gian trang trọng, ấm cúng và vẹn toàn nhất.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                        <!-- Feature 1 -->
+                        <div class="bg-white/60 p-6 rounded-xl shadow-sm border border-rose-200">
+                            <div class="flex items-center mb-3">
+                                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h4 class="font-bold text-gray-800">Không Gian Sang Trọng</h4>
                             </div>
-                            <div class="flex items-start space-x-3 bg-white/50 p-4 rounded-lg">
-                                <svg class="w-7 h-7 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div>
-                                    <h4 class="font-bold text-gray-700">Bàn Thờ Gia Tiên Đầy Đủ</h4>
-                                    <p class="text-sm text-gray-600">Bao gồm khăn phủ tinh tế, cặp chân nến lấp lánh và lư đồng/bát hương trang nghiêm, thể hiện lòng thành kính.</p>
-                                </div>
+                            <p class="text-sm text-gray-600">Trang trí toàn bộ 3 vách (background) tạo nên một không gian lễ ấm cúng, sang trọng và hoàn hảo cho những bức ảnh kỷ niệm.</p>
+                        </div>
+                        <!-- Feature 2 -->
+                        <div class="bg-white/60 p-6 rounded-xl shadow-sm border border-rose-200">
+                            <div class="flex items-center mb-3">
+                                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h4 class="font-bold text-gray-800">Bàn Thờ Gia Tiên Đầy Đủ</h4>
                             </div>
-                            <div class="flex items-start space-x-3 bg-white/50 p-4 rounded-lg">
-                                <svg class="w-7 h-7 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div>
-                                    <h4 class="font-bold text-gray-700">Bộ Bàn Hai Họ & Ghế Tiffany</h4>
-                                    <p class="text-sm text-gray-600">Bàn dài 3m phủ khăn trang nhã, bộ ấm trà, ly tách, nước suối và hoa để bàn (tươi/lụa) cho 12 khách mời.</p>
-                                </div>
+                            <p class="text-sm text-gray-600">Bao gồm khăn phủ tinh tế, cặp chân nến lấp lánh và lư đồng/bát hương trang nghiêm, thể hiện lòng thành kính.</p>
+                        </div>
+                        <!-- Feature 3 -->
+                        <div class="bg-white/60 p-6 rounded-xl shadow-sm border border-rose-200">
+                            <div class="flex items-center mb-3">
+                                <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h4 class="font-bold text-gray-800">Bộ Bàn Hai Họ & Ghế Tiffany</h4>
                             </div>
+                            <p class="text-sm text-gray-600">Bàn dài 3m phủ khăn trang nhã, bộ ấm trà, ly tách, nước suối và hoa để bàn (tươi/lụa) cho 12 khách mời.</p>
                         </div>
                     </div>
                 </div>
             `;
             productGrid.insertAdjacentHTML('beforebegin', descriptionHTML);
         }
-        // --- END: CHỈNH SỬA MÔ TẢ ---
 
         const filteredProducts = allProducts.filter(p => p.category === category);
         
@@ -303,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img id="${imageId}" src="${product.image_url || ''}" alt="${product.name}" class="product-image w-full h-full object-cover" data-id="${product.id}">
                 </div>
                 <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800">${product.name}</h3>
-                    <p class="text-gray-600 mt-2 flex-grow">${product.description}</p>
+                    <h3 class="font-dancing text-2xl font-bold text-red-600 mb-2">${product.name}</h3>
+                    <p class="text-gray-600 mt-2 flex-grow" style="text-align: justify; min-height: 6rem;">${product.description || '&nbsp;'}</p>
                     <div class="mt-4 flex justify-between items-center">
                         <p class="text-lg font-extrabold text-red-500">${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</p>
                         <button class="add-to-cart-btn bg-red-500 text-white rounded-full px-4 py-2 hover:bg-red-600 transition-colors text-sm" data-id="${product.id}">
@@ -383,75 +381,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    function showModalImage(index) {
-        // Loop around if index is out of bounds
-        if (index < 0) {
-            index = currentModalGallery.length - 1;
-        } else if (index >= currentModalGallery.length) {
-            index = 0;
-        }
-    
-        currentModalImageIndex = index;
-    
-        // Update main image source
-        modalMainImg.src = currentModalGallery[index];
-        modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
-    
-        // Update active state on thumbnails
-        const thumbnails = document.querySelectorAll('#modal-thumbnail-gallery .thumbnail-img');
-        thumbnails.forEach((thumb, i) => {
-            thumb.classList.toggle('active', i === index);
-            // Ensure the active thumbnail is visible
-            if (i === index) {
-                thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
+    function updateModalImageView(imageUrl) {
+        modalMainImg.src = imageUrl;
+        document.querySelectorAll('#modal-thumbnail-gallery .thumbnail-img').forEach((thumb, i) => {
+            thumb.classList.toggle('active', i === currentModalImageIndex);
         });
     }
 
+
     function openModal(product) {
         if (!modal || !modalContent) return;
-        
-        // Consolidate all images into one gallery, with the main image first, and remove duplicates.
-        const galleryImages = product.gallery ? [...product.gallery] : [];
-        currentModalGallery = [product.image_url, ...galleryImages].filter(Boolean);
-        currentModalGallery = [...new Set(currentModalGallery)];
-
-        // Clear previous thumbnails
-        modalThumbnailGallery.innerHTML = '';
-        
-        // Generate new thumbnails
-        currentModalGallery.forEach((imageUrl, index) => {
-            const thumb = document.createElement('img');
-            thumb.src = imageUrl;
-            thumb.alt = `${product.name} thumbnail ${index + 1}`;
-            thumb.classList.add('thumbnail-img');
-            thumb.onerror = () => { thumb.style.display = 'none'; }; // Hide broken thumbnails
-            thumb.addEventListener('click', () => {
-                showModalImage(index);
-            });
-            modalThumbnailGallery.appendChild(thumb);
-        });
-
-        // Show or hide navigation arrows based on the number of images
-        if (currentModalGallery.length > 1) {
-            modalPrevBtn.classList.remove('hidden');
-            modalNextBtn.classList.remove('hidden');
-        } else {
-            modalPrevBtn.classList.add('hidden');
-            modalNextBtn.classList.add('hidden');
+        currentModalGallery = product.gallery && product.gallery.length > 0 ? [...product.gallery] : [product.image_url];
+        if (currentModalGallery.length === 1 || !currentModalGallery[0]) {
+             currentModalGallery = [product.image_url];
         }
 
-        // Set the initial image using the new function
-        showModalImage(0); 
+        currentModalImageIndex = 0;
+        
+        modalThumbnailGallery.innerHTML = ''; // Xóa thumbnail cũ
+        modalMainImg.src = currentModalGallery[0] || 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+sản+phẩm';
+        modalMainImg.onerror = () => { modalMainImg.src = 'https://placehold.co/600x400/fecdd3/ef4444?text=Ảnh+lỗi'; };
+        
+        // Tạo thumbnails
+        currentModalGallery.forEach((imageUrl, index) => {
+            if(imageUrl) {
+                const thumb = document.createElement('img');
+                thumb.src = imageUrl;
+                thumb.alt = `${product.name} thumbnail ${index + 1}`;
+                thumb.classList.add('thumbnail-img');
+                if (index === 0) thumb.classList.add('active');
+                thumb.addEventListener('click', () => {
+                    currentModalImageIndex = index;
+                    updateModalImageView(imageUrl);
+                });
+                modalThumbnailGallery.appendChild(thumb);
+            }
+        });
 
+        // Cập nhật các thông tin khác
         modalName.textContent = product.name;
         modalDesc.textContent = product.description;
         modalPrice.textContent = `${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ`;
         modalAddBtn.dataset.id = product.id;
+        
+        // Hiển thị/ẩn nút chuyển ảnh
+        const showArrows = currentModalGallery.length > 1;
+        if(modalPrevBtn) modalPrevBtn.classList.toggle('hidden', !showArrows);
+        if(modalNextBtn) modalNextBtn.classList.toggle('hidden', !showArrows);
+
+        // Mở modal
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(() => modalContent.classList.remove('scale-95'), 10);
     }
+
 
     function closeModal() {
         if (!modal || !modalContent) return;
@@ -649,6 +632,19 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal();
         });
     }
+    if (modalPrevBtn) {
+        modalPrevBtn.addEventListener('click', () => {
+            currentModalImageIndex = (currentModalImageIndex - 1 + currentModalGallery.length) % currentModalGallery.length;
+            updateModalImageView(currentModalGallery[currentModalImageIndex]);
+        });
+    }
+
+    if (modalNextBtn) {
+        modalNextBtn.addEventListener('click', () => {
+            currentModalImageIndex = (currentModalImageIndex + 1) % currentModalGallery.length;
+            updateModalImageView(currentModalGallery[currentModalImageIndex]);
+        });
+    }
     if (expandImgBtn) {
         expandImgBtn.addEventListener('click', () => {
             if (modalMainImg && currentModalGallery.length > 0) {
@@ -672,19 +668,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-
-    if (modalPrevBtn) {
-        modalPrevBtn.addEventListener('click', () => {
-            showModalImage(currentModalImageIndex - 1);
-        });
-    }
-
-    if (modalNextBtn) {
-        modalNextBtn.addEventListener('click', () => {
-            showModalImage(currentModalImageIndex + 1);
-        });
-    }
-
     const backToTopButton = document.getElementById('back-to-top');
     if (backToTopButton) {
         window.addEventListener('scroll', () => {
