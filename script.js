@@ -236,28 +236,54 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProducts(category) {
         if (!productGrid) return;
         
-        // --- START: THÊM MÔ TẢ CHO MỤC "GIA TIÊN" ---
+        // --- START: CHỈNH SỬA MÔ TẢ CHO MỤC "GIA TIÊN" ---
         // Xóa mô tả cũ nếu có
         const existingDesc = document.getElementById('category-description');
         if (existingDesc) {
             existingDesc.remove();
         }
 
-        // Nếu là danh mục "Gia tiên", chèn HTML mô tả
+        // Nếu là danh mục "Gia tiên", chèn HTML mô tả mới, hiện đại và nổi bật hơn
         if (category === 'Gia Tiên') {
             const descriptionHTML = `
-                <div id="category-description" class="col-span-full mb-8 bg-rose-100 p-6 rounded-lg border-l-4 border-red-400 text-gray-700">
-                    <p class="mb-4">Một gia tiên trọn gói thường bao gồm đầy đủ các hạng mục cần thiết để chuẩn bị cho nghi lễ gia tiên trong ngày cưới. Tuỳ theo ngân sách và phong cách, các dịch vụ sẽ có sự linh hoạt bao gồm:</p>
-                    <ol class="list-decimal list-inside space-y-2">
-                        <li>Không gian sẽ bao gồm full ba background xung quanh.</li>
-                        <li>Bàn thờ gia tiên: khăn phủ, chân nến, bát hương.</li>
-                        <li>Một bộ bàn dài 3m gồm 12 ghế bao gồm khăn phủ, ly, tách, nước suối, hoa để bàn (hoa tươi/hoa lụa).</li>
-                    </ol>
+                <div id="category-description" class="col-span-full mb-12 bg-gradient-to-br from-rose-50 to-red-100 p-8 rounded-xl shadow-lg border-t-4 border-red-500 text-gray-800 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mt-8 -mr-8 w-40 h-40 text-red-100 opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
+                    <div class="relative z-10 text-center">
+                        <h3 class="text-3xl font-bold font-dancing text-red-600 mb-4">Trang Trọng Nghi Lễ, Ấm Tình Gia Tiên</h3>
+                        <p class="mb-8 text-gray-600 max-w-3xl mx-auto">
+                            Nơi con cháu thể hiện lòng thành kính, nơi khởi đầu cho một hành trình hạnh phúc. Út Minh hiểu rằng buổi lễ gia tiên không chỉ là một nghi thức, mà là sợi dây kết nối thiêng liêng. Hãy để chúng tôi giúp bạn chuẩn bị một không gian trang trọng, ấm cúng và vẹn toàn nhất.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                            <div class="flex items-start space-x-3 bg-white/50 p-4 rounded-lg">
+                                <svg class="w-7 h-7 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div>
+                                    <h4 class="font-bold text-gray-700">Không Gian Sang Trọng</h4>
+                                    <p class="text-sm text-gray-600">Trang trí toàn bộ 3 vách (background) tạo nên một không gian lễ ấm cúng, sang trọng và hoàn hảo cho những bức ảnh kỷ niệm.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 bg-white/50 p-4 rounded-lg">
+                                <svg class="w-7 h-7 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div>
+                                    <h4 class="font-bold text-gray-700">Bàn Thờ Gia Tiên Đầy Đủ</h4>
+                                    <p class="text-sm text-gray-600">Bao gồm khăn phủ tinh tế, cặp chân nến lấp lánh và lư đồng/bát hương trang nghiêm, thể hiện lòng thành kính.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 bg-white/50 p-4 rounded-lg">
+                                <svg class="w-7 h-7 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div>
+                                    <h4 class="font-bold text-gray-700">Bộ Bàn Hai Họ & Ghế Tiffany</h4>
+                                    <p class="text-sm text-gray-600">Bàn dài 3m phủ khăn trang nhã, bộ ấm trà, ly tách, nước suối và hoa để bàn (tươi/lụa) cho 12 khách mời.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
             productGrid.insertAdjacentHTML('beforebegin', descriptionHTML);
         }
-        // --- END: THÊM MÔ TẢ CHO MỤC "GIA TIÊN" ---
+        // --- END: CHỈNH SỬA MÔ TẢ ---
 
         const filteredProducts = allProducts.filter(p => p.category === category);
         
